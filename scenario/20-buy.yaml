@@ -1,20 +1,20 @@
 scenario: buy
-description: Buy raw botanicals, APIs, and marine lipids (PO receipt bill+pay)
+description: Buy kit-BOM raw materials (PO receipt bill+pay)
 steps:
 - id: po-northbio
   put: PurchaseOrder
   record:
-    VendorID: NORTHBIO
+    VendorID: VEND-NORTH-BIO
     Hold: false
     Details:
-    - {InventoryID: ECHEXT4, OrderQty: 5, UnitCost: 180.00}
-    - {InventoryID: ELDEXT10, OrderQty: 5, UnitCost: 220.00}
+    - {InventoryID: RAW-ECH-EXT4, OrderQty: 5, UnitCost: 180.00}
+    - {InventoryID: RAW-ELD-EXT10, OrderQty: 5, UnitCost: 220.00}
   capture: {OrderNbr: po_northbio}
 - id: rcpt-northbio
   put: PurchaseReceipt
   record:
     Type: Receipt
-    VendorID: NORTHBIO
+    VendorID: VEND-NORTH-BIO
     Hold: false
     CreateBill: true
     VendorRef: "PO-${po_northbio}"
@@ -46,7 +46,7 @@ steps:
   put: Check
   record:
     Type: Payment
-    Vendor: NORTHBIO
+    Vendor: VEND-NORTH-BIO
     PaymentMethod: WIRE
     CashAccount: '10100'
     PaymentAmount: 2000.00
@@ -65,23 +65,21 @@ steps:
 - id: po-alpine
   put: PurchaseOrder
   record:
-    VendorID: ALPINE
+    VendorID: VEND-ALPINE-EXT
     Hold: false
     Details:
-    - {InventoryID: ASHEXT5, OrderQty: 5, UnitCost: 90.00}
-    - {InventoryID: RHODEXT3, OrderQty: 2, UnitCost: 280.00}
+    - {InventoryID: RAW-ASH-EXT5, OrderQty: 5, UnitCost: 90.00}
   capture: {OrderNbr: po_alpine}
 - id: rcpt-alpine
   put: PurchaseReceipt
   record:
     Type: Receipt
-    VendorID: ALPINE
+    VendorID: VEND-ALPINE-EXT
     Hold: false
     CreateBill: true
     VendorRef: "PO-${po_alpine}"
     Details:
     - {POOrderType: Normal, POOrderNbr: "${po_alpine}", POLineNbr: 1, ReceiptQty: 5}
-    - {POOrderType: Normal, POOrderNbr: "${po_alpine}", POLineNbr: 2, ReceiptQty: 2}
   capture: {ReceiptNbr: rcpt_alpine}
 - id: release-rcpt-alpine
   action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}
@@ -107,14 +105,14 @@ steps:
   put: Check
   record:
     Type: Payment
-    Vendor: ALPINE
+    Vendor: VEND-ALPINE-EXT
     PaymentMethod: WIRE
     CashAccount: '10100'
-    PaymentAmount: 1010.00
+    PaymentAmount: 450.00
     PaymentRef: "WIRE-AP-${bill_alpine}"
     Hold: false
     Details:
-    - {DocType: Bill, ReferenceNbr: "${bill_alpine}", AmountPaid: 1010.00}
+    - {DocType: Bill, ReferenceNbr: "${bill_alpine}", AmountPaid: 450.00}
   capture: {ReferenceNbr: chk_alpine}
 - id: release-pay-alpine
   action: {entity: Check, name: ReleaseCheck}
@@ -123,87 +121,24 @@ steps:
     entity: Check
     keys: [Payment, "${chk_alpine}"]
     until: {Status: Closed}
-- id: po-pacific
-  put: PurchaseOrder
-  record:
-    VendorID: PACIFIC
-    Hold: false
-    Details:
-    - {InventoryID: CURC95, OrderQty: 5, UnitCost: 80.00}
-    - {InventoryID: PRB100, OrderQty: 2, UnitCost: 450.00}
-  capture: {OrderNbr: po_pacific}
-- id: rcpt-pacific
-  put: PurchaseReceipt
-  record:
-    Type: Receipt
-    VendorID: PACIFIC
-    Hold: false
-    CreateBill: true
-    VendorRef: "PO-${po_pacific}"
-    Details:
-    - {POOrderType: Normal, POOrderNbr: "${po_pacific}", POLineNbr: 1, ReceiptQty: 5}
-    - {POOrderType: Normal, POOrderNbr: "${po_pacific}", POLineNbr: 2, ReceiptQty: 2}
-  capture: {ReceiptNbr: rcpt_pacific}
-- id: release-rcpt-pacific
-  action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}
-  record: {Type: Receipt, ReceiptNbr: "${rcpt_pacific}"}
-  wait:
-    entity: PurchaseReceipt
-    keys: [Receipt, "${rcpt_pacific}"]
-    until: {Status: Released}
-- id: billnbr-pacific
-  get:
-    entity: Bill
-    filter: "VendorRef eq 'PO-${po_pacific}'"
-    top: 1
-  capture: {ReferenceNbr: bill_pacific}
-- id: release-bill-pacific
-  action: {entity: Bill, name: ReleaseBill}
-  record: {Type: Bill, ReferenceNbr: "${bill_pacific}"}
-  wait:
-    entity: Bill
-    keys: [Bill, "${bill_pacific}"]
-    until: {Status: Open}
-- id: pay-pacific
-  put: Check
-  record:
-    Type: Payment
-    Vendor: PACIFIC
-    PaymentMethod: WIRE
-    CashAccount: '10100'
-    PaymentAmount: 1300.00
-    PaymentRef: "WIRE-AP-${bill_pacific}"
-    Hold: false
-    Details:
-    - {DocType: Bill, ReferenceNbr: "${bill_pacific}", AmountPaid: 1300.00}
-  capture: {ReferenceNbr: chk_pacific}
-- id: release-pay-pacific
-  action: {entity: Check, name: ReleaseCheck}
-  record: {Type: Payment, ReferenceNbr: "${chk_pacific}"}
-  wait:
-    entity: Check
-    keys: [Payment, "${chk_pacific}"]
-    until: {Status: Closed}
 - id: po-nippon
   put: PurchaseOrder
   record:
-    VendorID: NIPPON
+    VendorID: VEND-NIPPON-PHARMA
     Hold: false
     Details:
-    - {InventoryID: COQ1099, OrderQty: 2, UnitCost: 320.00}
-    - {InventoryID: THEA98, OrderQty: 2, UnitCost: 140.00}
+    - {InventoryID: RAW-COQ10-99, OrderQty: 2, UnitCost: 320.00}
   capture: {OrderNbr: po_nippon}
 - id: rcpt-nippon
   put: PurchaseReceipt
   record:
     Type: Receipt
-    VendorID: NIPPON
+    VendorID: VEND-NIPPON-PHARMA
     Hold: false
     CreateBill: true
     VendorRef: "PO-${po_nippon}"
     Details:
     - {POOrderType: Normal, POOrderNbr: "${po_nippon}", POLineNbr: 1, ReceiptQty: 2}
-    - {POOrderType: Normal, POOrderNbr: "${po_nippon}", POLineNbr: 2, ReceiptQty: 2}
   capture: {ReceiptNbr: rcpt_nippon}
 - id: release-rcpt-nippon
   action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}
@@ -229,14 +164,14 @@ steps:
   put: Check
   record:
     Type: Payment
-    Vendor: NIPPON
+    Vendor: VEND-NIPPON-PHARMA
     PaymentMethod: WIRE
     CashAccount: '10100'
-    PaymentAmount: 920.00
+    PaymentAmount: 640.00
     PaymentRef: "WIRE-AP-${bill_nippon}"
     Hold: false
     Details:
-    - {DocType: Bill, ReferenceNbr: "${bill_nippon}", AmountPaid: 920.00}
+    - {DocType: Bill, ReferenceNbr: "${bill_nippon}", AmountPaid: 640.00}
   capture: {ReferenceNbr: chk_nippon}
 - id: release-pay-nippon
   action: {entity: Check, name: ReleaseCheck}
@@ -248,17 +183,17 @@ steps:
 - id: po-nordic
   put: PurchaseOrder
   record:
-    VendorID: NORDIC
+    VendorID: VEND-NORDIC-MAR
     Hold: false
     Details:
-    - {InventoryID: OMEGA370, OrderQty: 10, UnitCost: 55.00}
-    - {InventoryID: ASTA10, OrderQty: 1, UnitCost: 900.00}
+    - {InventoryID: RAW-OMEGA3-70, OrderQty: 10, UnitCost: 55.00}
+    - {InventoryID: RAW-ASTA-10, OrderQty: 1, UnitCost: 900.00}
   capture: {OrderNbr: po_nordic}
 - id: rcpt-nordic
   put: PurchaseReceipt
   record:
     Type: Receipt
-    VendorID: NORDIC
+    VendorID: VEND-NORDIC-MAR
     Hold: false
     CreateBill: true
     VendorRef: "PO-${po_nordic}"
@@ -290,7 +225,7 @@ steps:
   put: Check
   record:
     Type: Payment
-    Vendor: NORDIC
+    Vendor: VEND-NORDIC-MAR
     PaymentMethod: WIRE
     CashAccount: '10100'
     PaymentAmount: 1450.00
@@ -329,16 +264,6 @@ expect:
     Status: Closed
 - get:
     entity: Bill
-    keys: [Bill, "${bill_pacific}"]
-  fields:
-    Status: Closed
-- get:
-    entity: Check
-    keys: [Payment, "${chk_pacific}"]
-  fields:
-    Status: Closed
-- get:
-    entity: Bill
     keys: [Bill, "${bill_nippon}"]
   fields:
     Status: Closed
@@ -358,34 +283,22 @@ expect:
   fields:
     Status: Closed
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: ECHEXT4, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-ECH-EXT4, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: 5.0}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: ELDEXT10, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-ELD-EXT10, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: 5.0}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: ASHEXT5, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-ASH-EXT5, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: 5.0}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: RHODEXT3, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-COQ10-99, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: 2.0}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: CURC95, WarehouseID: WHMISS}
-  delta: {QtyOnHand: 5.0}
-- inquire: InventorySummaryInquiry
-  parameters: {InventoryID: PRB100, WarehouseID: WHMISS}
-  delta: {QtyOnHand: 2.0}
-- inquire: InventorySummaryInquiry
-  parameters: {InventoryID: COQ1099, WarehouseID: WHMISS}
-  delta: {QtyOnHand: 2.0}
-- inquire: InventorySummaryInquiry
-  parameters: {InventoryID: THEA98, WarehouseID: WHMISS}
-  delta: {QtyOnHand: 2.0}
-- inquire: InventorySummaryInquiry
-  parameters: {InventoryID: OMEGA370, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-OMEGA3-70, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: 10.0}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: ASTA10, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-ASTA-10, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: 1.0}
 - inquire: AccountSummaryInquiry
   parameters: {Ledger: ACTUAL, Period: "${current_period}"}
@@ -398,4 +311,4 @@ expect:
 - inquire: AccountSummaryInquiry
   parameters: {Ledger: ACTUAL, Period: "${current_period}"}
   match: {Account: '10100'}
-  delta: {EndingBalance: -6680.00}
+  delta: {EndingBalance: -4540.00}

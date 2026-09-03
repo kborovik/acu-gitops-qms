@@ -2,15 +2,7 @@ entity: Warehouse
 key: WarehouseID
 endpoint: default
 records:
-- WarehouseID: WHMISS
-  ReceivingLocationID: MAIN
-  ShippingLocationID: MAIN
-  RMALocationID: MAIN
-- WarehouseID: WHQC
-  ReceivingLocationID: MAIN
-  ShippingLocationID: MAIN
-  RMALocationID: MAIN
-- WarehouseID: WHBC
+- WarehouseID: WH-MISS-01
   ReceivingLocationID: MAIN
   ShippingLocationID: MAIN
   RMALocationID: MAIN

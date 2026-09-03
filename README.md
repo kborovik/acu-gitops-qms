@@ -5,9 +5,13 @@ Canadian CDMO and ingredient importer (NHPs, functional foods). Finance +
 inventory/distribution + kit assembly. Single full seed — no `--flavor`.
 
 Sourced from the company profile and master data in
-[`gcp-acu-coa`](../gcp-acu-coa/domain/COMPANY_PROFILE.md). Seed IDs are
-shortened to virgin-tenant segmented-key length (10). Domain IDs stay in the
-mapping table below.
+[`gcp-acu-coa`](../gcp-acu-coa/domain/COMPANY_PROFILE.md). Inventory and
+vendor IDs are the domain catalog IDs (length at most 30). Warehouse `SiteCD`
+stays 10 characters (`WH-MISS-01`).
+
+Until [acumatica-cli#30](https://github.com/kborovik/acumatica-cli/issues/30)
+ships, set CS202000 `INVENTORY` and `BIZACCT` segment 1 length to 30 on the
+empty tenant before `acu apply`.
 
 **Start from a brand-new empty tenant.** Do not apply onto a half-configured company.
 
@@ -23,11 +27,9 @@ acu config check
 acu bootstrap
 
 # 3. Seed config umbrella (bootstrap → baseline → setup → master)
-#    bare `acu apply` also appends overlays/default-<default_api>/ when present
 acu apply
 
 # 4. Lifecycle scenarios (once capital → buy → build → sell)
-#    bare `acu run` replaces same-name files from pin overlay scenario/
 acu run
 
 # 5. Prove no drift
@@ -59,48 +61,32 @@ Bare `acu apply` / `acu diff` also prefer `config/` when those trees exist.
 | HQ | 2450 Meadowpine Blvd, Mississauga, ON L5N 6S2 |
 | Site licence | Health Canada #302194 (Mfg / Pack / Label / Import) |
 
-Warehouses: `WHMISS` (plant + QC bays), `WHQC` (Saint-Laurent), `WHBC` (BC).
-Buy / build / sell run on `WHMISS` / `MAIN`. QC hold bays (`QCHOLDA/B/C`, `COLD`, `FG`) exist for the inbound CoA story; lot/serial class is not seeded (CLI demo non-goal).
+Warehouse: `WH-MISS-01` / `MAIN`. Buy / build / sell run there.
 
-## Domain ID map
-
-Virgin segmented keys are 10 characters. Domain catalog IDs longer than that
-are shortened here; CoA ingestion should use the seed column.
-
-| Domain | Seed | Kind |
-| --- | --- | --- |
-| CanNordic BioNutra Inc. | `CNBN` | company |
-| WH-MISS-01 | `WHMISS` | warehouse |
-| WH-MISS-COLD-01 | `WHMISS` / `COLD` | location |
-| WH-MISS-FG-01 | `WHMISS` / `FG` | location |
-| QC-HOLD-BAY-A/B/C | `QCHOLDA` / `QCHOLDB` / `QCHOLDC` | location |
-| VEND-NORTH-BIO | `NORTHBIO` | vendor |
-| VEND-ALPINE-EXT | `ALPINE` | vendor |
-| VEND-PACIFIC-ORG | `PACIFIC` | vendor |
-| VEND-NIPPON-PHARMA | `NIPPON` | vendor |
-| VEND-NORDIC-MAR | `NORDIC` | vendor |
-| LAB-GL-ANALYTICAL | `GLAKES` | lab vendor |
-| LAB-EURO-PHYTO | `EUROPHYTO` | lab vendor |
-| LAB-PACIFIC-TEST | `PACLAB` | lab vendor |
-| LAB-TOKYO-BIO | `TOKYOBIO` | lab vendor |
-| LAB-FJORD-ANALYTICAL | `FJORD` | lab vendor |
-| RAW-ECH-EXT4 | `ECHEXT4` | raw |
-| RAW-ELD-EXT10 | `ELDEXT10` | raw |
-| RAW-ASH-EXT5 | `ASHEXT5` | raw |
-| RAW-RHOD-EXT3 | `RHODEXT3` | raw |
-| RAW-CURC-95 | `CURC95` | raw |
-| RAW-GUT-PRB100 | `PRB100` | raw |
-| RAW-COQ10-99 | `COQ1099` | raw |
-| RAW-THEA-98 | `THEA98` | raw |
-| RAW-OMEGA3-70 | `OMEGA370` | raw |
-| RAW-ASTA-10 | `ASTA10` | raw |
-| FG-IMMUNE-DEFENSE-60C | `IMMUNE60` | kit |
-| FG-CARDIO-OMEGA-COQ10-60SG | `CARDIO60` | kit |
+Item class IDs stay `PARTS` / `KITS` so `acu extract` filter-split still matches.
 
 Kit specs follow the domain BOMs (mg/capsule × 60, as KG per bottle):
 ImmunoShield `0.012` + `0.009` + `0.006` KG; CardioPure `0.060` + `0.006` + `0.001` KG.
 
-Item class IDs stay `PARTS` / `KITS` so `acu extract` filter-split still matches.
+## Catalog in this seed
+
+| ID | Kind |
+| --- | --- |
+| `VEND-NORTH-BIO` | vendor |
+| `VEND-ALPINE-EXT` | vendor |
+| `VEND-NIPPON-PHARMA` | vendor |
+| `VEND-NORDIC-MAR` | vendor |
+| `RAW-ECH-EXT4` | raw |
+| `RAW-ELD-EXT10` | raw |
+| `RAW-ASH-EXT5` | raw |
+| `RAW-COQ10-99` | raw |
+| `RAW-OMEGA3-70` | raw |
+| `RAW-ASTA-10` | raw |
+| `FG-IMMUNE-DEFENSE-60C` | kit |
+| `FG-CARDIO-OMEGA-COQ10-60SG` | kit |
+| `VITALPLUS` | customer |
+| `HEARTLAB` | customer |
+| `WELLCAN` | customer |
 
 ## Layout
 
@@ -112,11 +98,9 @@ Item class IDs stay `PARTS` / `KITS` so `acu extract` filter-split still matches
 | `config/setup/` | Financial year, master calendar, open periods |
 | `config/master/` | Numbering (`05-numbering-sequences`) before module prefs; inventory, warehouse, items, vendors, customers; roles/users (`90-roles` then `91-users`) |
 | `scenario/10-seed-capital.yaml` | Once-class owner capital JE (skip-if-present when present); Period = `${current_period}` |
-| `scenario/20-buy.yaml` | Additive ingredient PO → receipt → bill → AP pay (five suppliers) |
+| `scenario/20-buy.yaml` | Additive ingredient PO → receipt → bill → AP pay (four suppliers, kit BOM only) |
 | `scenario/30-build.yaml` | Additive kit assembly (ImmunoShield + CardioPure) |
 | `scenario/40-sell.yaml` | Additive SO → ship → invoice → AR pay (three brand customers) |
-| `overlays/` | Default-half rewrites (`default-<default_api>/`); bare apply/run/diff auto-compose |
-| `overlays/default-24.200.001/` | Lab 25r1 half: KitAssembly Type Assembly |
 | `config/views/10-trial-balance.yaml` | Observer view (EndingBalance inquire; Period pinned literal; not SEED_DIRS) |
 | `state/` | Written by `acu state` (derived-state observations) |
 
@@ -132,4 +116,3 @@ Monoscenario `buy-sell` is not part of this package.
 | `mvance` | Marcus Vance, VP Supply Chain | PO Admin, SO Admin |
 | `dsingh` | Devon Singh, Receiving Supervisor | IN Receiver, PO Clerk |
 | `sarchambault` | Sophie Archambault, ERP Architect | Administrator |
-| `soadmin` | Sales order admin | SO Admin |

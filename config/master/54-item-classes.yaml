@@ -10,7 +10,7 @@ records:
   AvailabilityCalculationRule: DEFAULT
   PostingClass: PARTS
   TaxCategoryID: EXEMPT
-  DefaultWarehouseID: WHMISS
+  DefaultWarehouseID: WH-MISS-01
 - ClassID: KITS
   Description: Manufactured nutraceuticals
   StockItem: true
@@ -20,4 +20,4 @@ records:
   AvailabilityCalculationRule: DEFAULT
   PostingClass: KITS
   TaxCategoryID: EXEMPT
-  DefaultWarehouseID: WHMISS
+  DefaultWarehouseID: WH-MISS-01

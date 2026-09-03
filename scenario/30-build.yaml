@@ -5,10 +5,10 @@ steps:
   put: KitAssembly
   record:
     Type: Production
-    KitInventoryID: IMMUNE60
+    KitInventoryID: FG-IMMUNE-DEFENSE-60C
     Revision: V1
     Qty: 100
-    WarehouseID: WHMISS
+    WarehouseID: WH-MISS-01
     LocationID: MAIN
     ReasonCode: INASSEMBLY
     Hold: false
@@ -24,10 +24,10 @@ steps:
   put: KitAssembly
   record:
     Type: Production
-    KitInventoryID: CARDIO60
+    KitInventoryID: FG-CARDIO-OMEGA-COQ10-60SG
     Revision: V1
     Qty: 50
-    WarehouseID: WHMISS
+    WarehouseID: WH-MISS-01
     LocationID: MAIN
     ReasonCode: INASSEMBLY
     Hold: false
@@ -51,28 +51,28 @@ expect:
   fields:
     Status: Released
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: IMMUNE60, WarehouseID: WHMISS}
+  parameters: {InventoryID: FG-IMMUNE-DEFENSE-60C, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: 100.0}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: CARDIO60, WarehouseID: WHMISS}
+  parameters: {InventoryID: FG-CARDIO-OMEGA-COQ10-60SG, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: 50.0}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: ECHEXT4, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-ECH-EXT4, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: -1.2}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: ELDEXT10, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-ELD-EXT10, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: -0.9}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: ASHEXT5, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-ASH-EXT5, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: -0.6}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: OMEGA370, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-OMEGA3-70, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: -3.0}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: COQ1099, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-COQ10-99, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: -0.3}
 - inquire: InventorySummaryInquiry
-  parameters: {InventoryID: ASTA10, WarehouseID: WHMISS}
+  parameters: {InventoryID: RAW-ASTA-10, WarehouseID: WH-MISS-01}
   delta: {QtyOnHand: -0.05}
 - inquire: AccountSummaryInquiry
   parameters: {Ledger: ACTUAL, Period: "${current_period}"}

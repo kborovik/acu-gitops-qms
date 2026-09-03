@@ -3,31 +3,31 @@ key: [KitInventoryID, RevisionID]
 detail_keys:
   StockComponents: StockInventoryID
 records:
-- KitInventoryID: IMMUNE60
+- KitInventoryID: FG-IMMUNE-DEFENSE-60C
   RevisionID: V1
   Description: ImmunoShield 60-count bottle (BOM-IMMUNE-DEF-01)
   Active: true
   StockComponents:
-  - StockInventoryID: ECHEXT4
+  - StockInventoryID: RAW-ECH-EXT4
     ComponentQty: 0.012
     UOM: KG
-  - StockInventoryID: ELDEXT10
+  - StockInventoryID: RAW-ELD-EXT10
     ComponentQty: 0.009
     UOM: KG
-  - StockInventoryID: ASHEXT5
+  - StockInventoryID: RAW-ASH-EXT5
     ComponentQty: 0.006
     UOM: KG
-- KitInventoryID: CARDIO60
+- KitInventoryID: FG-CARDIO-OMEGA-COQ10-60SG
   RevisionID: V1
   Description: CardioPure 60-count bottle (BOM-CARDIO-OM3-01)
   Active: true
   StockComponents:
-  - StockInventoryID: OMEGA370
+  - StockInventoryID: RAW-OMEGA3-70
     ComponentQty: 0.060
     UOM: KG
-  - StockInventoryID: COQ1099
+  - StockInventoryID: RAW-COQ10-99
     ComponentQty: 0.006
     UOM: KG
-  - StockInventoryID: ASTA10
+  - StockInventoryID: RAW-ASTA-10
     ComponentQty: 0.001
     UOM: KG

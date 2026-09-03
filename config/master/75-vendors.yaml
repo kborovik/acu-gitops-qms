@@ -1,7 +1,7 @@
 entity: Vendor
 key: VendorID
 records:
-- VendorID: NORTHBIO
+- VendorID: VEND-NORTH-BIO
   VendorName: Northern BioNutra Imports Corp.
   VendorClass: SUPPLIER
   Terms: NET30
@@ -10,7 +10,7 @@ records:
   MainContact:
     Address:
       Country: CA
-- VendorID: ALPINE
+- VendorID: VEND-ALPINE-EXT
   VendorName: Alpine Botanical Extracts GmbH
   VendorClass: SUPPLIER
   Terms: NET60
@@ -19,16 +19,7 @@ records:
   MainContact:
     Address:
       Country: DE
-- VendorID: PACIFIC
-  VendorName: Pacific Organic Ingredients Ltd.
-  VendorClass: SUPPLIER
-  Terms: NET30
-  PrintOrders: false
-  SendOrdersbyEmail: false
-  MainContact:
-    Address:
-      Country: CA
-- VendorID: NIPPON
+- VendorID: VEND-NIPPON-PHARMA
   VendorName: Nippon Pure Bioactives Inc.
   VendorClass: SUPPLIER
   Terms: NET45
@@ -37,7 +28,7 @@ records:
   MainContact:
     Address:
       Country: JP
-- VendorID: NORDIC
+- VendorID: VEND-NORDIC-MAR
   VendorName: Nordic Marine Extracts AS
   VendorClass: SUPPLIER
   Terms: NET30
@@ -46,57 +37,3 @@ records:
   MainContact:
     Address:
       Country: NO
-- VendorID: GLAKES
-  VendorName: Great Lakes Bio-Analytical Services
-  VendorClass: SERVICE
-  Terms: NET30
-  PrintOrders: false
-  SendOrdersbyEmail: false
-  MainContact:
-    Address:
-      Country: CA
-- VendorID: EUROPHYTO
-  VendorName: Euro-Phyto Analytics GmbH
-  VendorClass: SERVICE
-  Terms: NET30
-  PrintOrders: false
-  SendOrdersbyEmail: false
-  MainContact:
-    Address:
-      Country: DE
-- VendorID: PACLAB
-  VendorName: Pacific Rim BioNutra Testing Labs
-  VendorClass: SERVICE
-  Terms: NET30
-  PrintOrders: false
-  SendOrdersbyEmail: false
-  MainContact:
-    Address:
-      Country: CA
-- VendorID: TOKYOBIO
-  VendorName: Tokyo Bio-Analytical Labs Inc.
-  VendorClass: SERVICE
-  Terms: NET30
-  PrintOrders: false
-  SendOrdersbyEmail: false
-  MainContact:
-    Address:
-      Country: JP
-- VendorID: FJORD
-  VendorName: Fjord Marine Bio-Testing Labs AS
-  VendorClass: SERVICE
-  Terms: NET30
-  PrintOrders: false
-  SendOrdersbyEmail: false
-  MainContact:
-    Address:
-      Country: NO
-- VendorID: FREIGHT
-  VendorName: FastFreight Logistics
-  VendorClass: SERVICE
-  Terms: NET30
-  PrintOrders: false
-  SendOrdersbyEmail: false
-  MainContact:
-    Address:
-      Country: CA
