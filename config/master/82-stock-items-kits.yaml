@@ -1,0 +1,17 @@
+entity: StockItem
+key: InventoryID
+records:
+- InventoryID: IMMUNE60
+  Description: ImmunoShield Botanical Active Plus 60 veg caps
+  ItemClass: KITS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS
+  IsAKit: true
+  DefaultPrice: 24.00
+- InventoryID: CARDIO60
+  Description: CardioPure Ultra Omega-3 + CoQ10 60 softgels
+  ItemClass: KITS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS
+  IsAKit: true
+  DefaultPrice: 36.00

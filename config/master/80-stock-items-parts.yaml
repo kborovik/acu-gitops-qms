@@ -1,0 +1,53 @@
+entity: StockItem
+key: InventoryID
+records:
+- InventoryID: ECHEXT4
+  Description: Organic Echinacea extract 4% polyphenols
+  ItemClass: PARTS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS
+- InventoryID: ELDEXT10
+  Description: Organic elderberry extract 10% anthocyanins
+  ItemClass: PARTS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS
+- InventoryID: ASHEXT5
+  Description: Organic ashwagandha extract 5% withanolides
+  ItemClass: PARTS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS
+- InventoryID: RHODEXT3
+  Description: Rhodiola rosea extract 3% rosavins
+  ItemClass: PARTS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS
+- InventoryID: CURC95
+  Description: Turmeric curcuminoid extract 95%
+  ItemClass: PARTS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS
+- InventoryID: PRB100
+  Description: Multi-strain probiotic blend 100B CFU/g
+  ItemClass: PARTS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS
+- InventoryID: COQ1099
+  Description: Coenzyme Q10 USP 99%
+  ItemClass: PARTS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS
+- InventoryID: THEA98
+  Description: L-Theanine 98.5% fermentation grade
+  ItemClass: PARTS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS
+- InventoryID: OMEGA370
+  Description: Marine omega-3 TG oil 70% EPA/DHA
+  ItemClass: PARTS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS
+- InventoryID: ASTA10
+  Description: Natural astaxanthin oleoresin 10%
+  ItemClass: PARTS
+  ItemStatus: Active
+  DefaultWarehouseID: WHMISS

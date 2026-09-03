@@ -1,0 +1,39 @@
+entity: Customer
+key: CustomerID
+records:
+- CustomerID: VITALPLUS
+  CustomerName: VitalPlus Naturals Inc.
+  CustomerClass: B2B
+  MainContact:
+    Address:
+      Country: CA
+- CustomerID: HEARTLAB
+  CustomerName: HeartLab Wellness Brands
+  CustomerClass: B2B
+  MainContact:
+    Address:
+      Country: CA
+- CustomerID: WELLCAN
+  CustomerName: WellCan Consumer Health
+  CustomerClass: B2B
+  MainContact:
+    Address:
+      Country: CA
+- CustomerID: PURELEAF
+  CustomerName: PureLeaf Botanicals LLC
+  CustomerClass: B2B
+  MainContact:
+    Address:
+      Country: US
+- CustomerID: NORDWELL
+  CustomerName: NordWell Specialty Nutrition
+  CustomerClass: B2B
+  MainContact:
+    Address:
+      Country: US
+- CustomerID: OCEANRX
+  CustomerName: OceanRx Marine Health
+  CustomerClass: B2B
+  MainContact:
+    Address:
+      Country: US

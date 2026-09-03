@@ -1,0 +1,62 @@
+entity: User
+key: Username
+endpoint: bootstrap
+detail_keys:
+  Roles: Rolename
+records:
+- Username: soadmin
+  FirstName: SO
+  LastName: Admin
+  Email: soadmin@cannordic.ca
+  IsApproved: true
+  PasswordNeverExpires: true
+  PasswordChangeOnNextLogin: false
+  Roles:
+  - Rolename: SO Admin
+    Selected: true
+- Username: etremblay
+  FirstName: Elodie
+  LastName: Tremblay
+  Email: etremblay@cannordic.ca
+  IsApproved: true
+  PasswordNeverExpires: true
+  PasswordChangeOnNextLogin: false
+  Roles:
+  - Rolename: IN Manager
+    Selected: true
+  - Rolename: PO Viewer
+    Selected: true
+- Username: mvance
+  FirstName: Marcus
+  LastName: Vance
+  Email: mvance@cannordic.ca
+  IsApproved: true
+  PasswordNeverExpires: true
+  PasswordChangeOnNextLogin: false
+  Roles:
+  - Rolename: PO Admin
+    Selected: true
+  - Rolename: SO Admin
+    Selected: true
+- Username: dsingh
+  FirstName: Devon
+  LastName: Singh
+  Email: dsingh@cannordic.ca
+  IsApproved: true
+  PasswordNeverExpires: true
+  PasswordChangeOnNextLogin: false
+  Roles:
+  - Rolename: IN Receiver
+    Selected: true
+  - Rolename: PO Clerk
+    Selected: true
+- Username: sarchambault
+  FirstName: Sophie
+  LastName: Archambault
+  Email: sarchambault@cannordic.ca
+  IsApproved: true
+  PasswordNeverExpires: true
+  PasswordChangeOnNextLogin: false
+  Roles:
+  - Rolename: Administrator
+    Selected: true

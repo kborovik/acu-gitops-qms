@@ -1,0 +1,80 @@
+scenario: build
+description: Assemble ImmunoShield and CardioPure kits from released raw materials
+steps:
+- id: asm-immune
+  put: KitAssembly
+  record:
+    Type: Production
+    KitInventoryID: IMMUNE60
+    Revision: V1
+    Qty: 100
+    WarehouseID: WHMISS
+    LocationID: MAIN
+    ReasonCode: INASSEMBLY
+    Hold: false
+  capture: {ReferenceNbr: asm_immune}
+- id: release-asm-immune
+  action: {entity: KitAssembly, name: ReleaseKitAssembly}
+  record: {Type: Production, ReferenceNbr: "${asm_immune}"}
+  wait:
+    entity: KitAssembly
+    keys: [Production, "${asm_immune}"]
+    until: {Status: Released}
+- id: asm-cardio
+  put: KitAssembly
+  record:
+    Type: Production
+    KitInventoryID: CARDIO60
+    Revision: V1
+    Qty: 50
+    WarehouseID: WHMISS
+    LocationID: MAIN
+    ReasonCode: INASSEMBLY
+    Hold: false
+  capture: {ReferenceNbr: asm_cardio}
+- id: release-asm-cardio
+  action: {entity: KitAssembly, name: ReleaseKitAssembly}
+  record: {Type: Production, ReferenceNbr: "${asm_cardio}"}
+  wait:
+    entity: KitAssembly
+    keys: [Production, "${asm_cardio}"]
+    until: {Status: Released}
+expect:
+- get:
+    entity: KitAssembly
+    keys: [Production, "${asm_immune}"]
+  fields:
+    Status: Released
+- get:
+    entity: KitAssembly
+    keys: [Production, "${asm_cardio}"]
+  fields:
+    Status: Released
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: IMMUNE60, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 100.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: CARDIO60, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 50.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: ECHEXT4, WarehouseID: WHMISS}
+  delta: {QtyOnHand: -1.2}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: ELDEXT10, WarehouseID: WHMISS}
+  delta: {QtyOnHand: -0.9}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: ASHEXT5, WarehouseID: WHMISS}
+  delta: {QtyOnHand: -0.6}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: OMEGA370, WarehouseID: WHMISS}
+  delta: {QtyOnHand: -3.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: COQ1099, WarehouseID: WHMISS}
+  delta: {QtyOnHand: -0.3}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: ASTA10, WarehouseID: WHMISS}
+  delta: {QtyOnHand: -0.05}
+- inquire: AccountSummaryInquiry
+  parameters: {Ledger: ACTUAL, Period: "${current_period}"}
+  match: {Account: '10100'}
+  delta: {EndingBalance: 0.00}

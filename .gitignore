@@ -1,0 +1,5 @@
+.env
+findings/
+inventory/
+schemas/
+state/

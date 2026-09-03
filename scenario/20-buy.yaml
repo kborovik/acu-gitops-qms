@@ -1,0 +1,401 @@
+scenario: buy
+description: Buy raw botanicals, APIs, and marine lipids (PO receipt bill+pay)
+steps:
+- id: po-northbio
+  put: PurchaseOrder
+  record:
+    VendorID: NORTHBIO
+    Hold: false
+    Details:
+    - {InventoryID: ECHEXT4, OrderQty: 5, UnitCost: 180.00}
+    - {InventoryID: ELDEXT10, OrderQty: 5, UnitCost: 220.00}
+  capture: {OrderNbr: po_northbio}
+- id: rcpt-northbio
+  put: PurchaseReceipt
+  record:
+    Type: Receipt
+    VendorID: NORTHBIO
+    Hold: false
+    CreateBill: true
+    VendorRef: "PO-${po_northbio}"
+    Details:
+    - {POOrderType: Normal, POOrderNbr: "${po_northbio}", POLineNbr: 1, ReceiptQty: 5}
+    - {POOrderType: Normal, POOrderNbr: "${po_northbio}", POLineNbr: 2, ReceiptQty: 5}
+  capture: {ReceiptNbr: rcpt_northbio}
+- id: release-rcpt-northbio
+  action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}
+  record: {Type: Receipt, ReceiptNbr: "${rcpt_northbio}"}
+  wait:
+    entity: PurchaseReceipt
+    keys: [Receipt, "${rcpt_northbio}"]
+    until: {Status: Released}
+- id: billnbr-northbio
+  get:
+    entity: Bill
+    filter: "VendorRef eq 'PO-${po_northbio}'"
+    top: 1
+  capture: {ReferenceNbr: bill_northbio}
+- id: release-bill-northbio
+  action: {entity: Bill, name: ReleaseBill}
+  record: {Type: Bill, ReferenceNbr: "${bill_northbio}"}
+  wait:
+    entity: Bill
+    keys: [Bill, "${bill_northbio}"]
+    until: {Status: Open}
+- id: pay-northbio
+  put: Check
+  record:
+    Type: Payment
+    Vendor: NORTHBIO
+    PaymentMethod: WIRE
+    CashAccount: '10100'
+    PaymentAmount: 2000.00
+    PaymentRef: "WIRE-AP-${bill_northbio}"
+    Hold: false
+    Details:
+    - {DocType: Bill, ReferenceNbr: "${bill_northbio}", AmountPaid: 2000.00}
+  capture: {ReferenceNbr: chk_northbio}
+- id: release-pay-northbio
+  action: {entity: Check, name: ReleaseCheck}
+  record: {Type: Payment, ReferenceNbr: "${chk_northbio}"}
+  wait:
+    entity: Check
+    keys: [Payment, "${chk_northbio}"]
+    until: {Status: Closed}
+- id: po-alpine
+  put: PurchaseOrder
+  record:
+    VendorID: ALPINE
+    Hold: false
+    Details:
+    - {InventoryID: ASHEXT5, OrderQty: 5, UnitCost: 90.00}
+    - {InventoryID: RHODEXT3, OrderQty: 2, UnitCost: 280.00}
+  capture: {OrderNbr: po_alpine}
+- id: rcpt-alpine
+  put: PurchaseReceipt
+  record:
+    Type: Receipt
+    VendorID: ALPINE
+    Hold: false
+    CreateBill: true
+    VendorRef: "PO-${po_alpine}"
+    Details:
+    - {POOrderType: Normal, POOrderNbr: "${po_alpine}", POLineNbr: 1, ReceiptQty: 5}
+    - {POOrderType: Normal, POOrderNbr: "${po_alpine}", POLineNbr: 2, ReceiptQty: 2}
+  capture: {ReceiptNbr: rcpt_alpine}
+- id: release-rcpt-alpine
+  action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}
+  record: {Type: Receipt, ReceiptNbr: "${rcpt_alpine}"}
+  wait:
+    entity: PurchaseReceipt
+    keys: [Receipt, "${rcpt_alpine}"]
+    until: {Status: Released}
+- id: billnbr-alpine
+  get:
+    entity: Bill
+    filter: "VendorRef eq 'PO-${po_alpine}'"
+    top: 1
+  capture: {ReferenceNbr: bill_alpine}
+- id: release-bill-alpine
+  action: {entity: Bill, name: ReleaseBill}
+  record: {Type: Bill, ReferenceNbr: "${bill_alpine}"}
+  wait:
+    entity: Bill
+    keys: [Bill, "${bill_alpine}"]
+    until: {Status: Open}
+- id: pay-alpine
+  put: Check
+  record:
+    Type: Payment
+    Vendor: ALPINE
+    PaymentMethod: WIRE
+    CashAccount: '10100'
+    PaymentAmount: 1010.00
+    PaymentRef: "WIRE-AP-${bill_alpine}"
+    Hold: false
+    Details:
+    - {DocType: Bill, ReferenceNbr: "${bill_alpine}", AmountPaid: 1010.00}
+  capture: {ReferenceNbr: chk_alpine}
+- id: release-pay-alpine
+  action: {entity: Check, name: ReleaseCheck}
+  record: {Type: Payment, ReferenceNbr: "${chk_alpine}"}
+  wait:
+    entity: Check
+    keys: [Payment, "${chk_alpine}"]
+    until: {Status: Closed}
+- id: po-pacific
+  put: PurchaseOrder
+  record:
+    VendorID: PACIFIC
+    Hold: false
+    Details:
+    - {InventoryID: CURC95, OrderQty: 5, UnitCost: 80.00}
+    - {InventoryID: PRB100, OrderQty: 2, UnitCost: 450.00}
+  capture: {OrderNbr: po_pacific}
+- id: rcpt-pacific
+  put: PurchaseReceipt
+  record:
+    Type: Receipt
+    VendorID: PACIFIC
+    Hold: false
+    CreateBill: true
+    VendorRef: "PO-${po_pacific}"
+    Details:
+    - {POOrderType: Normal, POOrderNbr: "${po_pacific}", POLineNbr: 1, ReceiptQty: 5}
+    - {POOrderType: Normal, POOrderNbr: "${po_pacific}", POLineNbr: 2, ReceiptQty: 2}
+  capture: {ReceiptNbr: rcpt_pacific}
+- id: release-rcpt-pacific
+  action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}
+  record: {Type: Receipt, ReceiptNbr: "${rcpt_pacific}"}
+  wait:
+    entity: PurchaseReceipt
+    keys: [Receipt, "${rcpt_pacific}"]
+    until: {Status: Released}
+- id: billnbr-pacific
+  get:
+    entity: Bill
+    filter: "VendorRef eq 'PO-${po_pacific}'"
+    top: 1
+  capture: {ReferenceNbr: bill_pacific}
+- id: release-bill-pacific
+  action: {entity: Bill, name: ReleaseBill}
+  record: {Type: Bill, ReferenceNbr: "${bill_pacific}"}
+  wait:
+    entity: Bill
+    keys: [Bill, "${bill_pacific}"]
+    until: {Status: Open}
+- id: pay-pacific
+  put: Check
+  record:
+    Type: Payment
+    Vendor: PACIFIC
+    PaymentMethod: WIRE
+    CashAccount: '10100'
+    PaymentAmount: 1300.00
+    PaymentRef: "WIRE-AP-${bill_pacific}"
+    Hold: false
+    Details:
+    - {DocType: Bill, ReferenceNbr: "${bill_pacific}", AmountPaid: 1300.00}
+  capture: {ReferenceNbr: chk_pacific}
+- id: release-pay-pacific
+  action: {entity: Check, name: ReleaseCheck}
+  record: {Type: Payment, ReferenceNbr: "${chk_pacific}"}
+  wait:
+    entity: Check
+    keys: [Payment, "${chk_pacific}"]
+    until: {Status: Closed}
+- id: po-nippon
+  put: PurchaseOrder
+  record:
+    VendorID: NIPPON
+    Hold: false
+    Details:
+    - {InventoryID: COQ1099, OrderQty: 2, UnitCost: 320.00}
+    - {InventoryID: THEA98, OrderQty: 2, UnitCost: 140.00}
+  capture: {OrderNbr: po_nippon}
+- id: rcpt-nippon
+  put: PurchaseReceipt
+  record:
+    Type: Receipt
+    VendorID: NIPPON
+    Hold: false
+    CreateBill: true
+    VendorRef: "PO-${po_nippon}"
+    Details:
+    - {POOrderType: Normal, POOrderNbr: "${po_nippon}", POLineNbr: 1, ReceiptQty: 2}
+    - {POOrderType: Normal, POOrderNbr: "${po_nippon}", POLineNbr: 2, ReceiptQty: 2}
+  capture: {ReceiptNbr: rcpt_nippon}
+- id: release-rcpt-nippon
+  action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}
+  record: {Type: Receipt, ReceiptNbr: "${rcpt_nippon}"}
+  wait:
+    entity: PurchaseReceipt
+    keys: [Receipt, "${rcpt_nippon}"]
+    until: {Status: Released}
+- id: billnbr-nippon
+  get:
+    entity: Bill
+    filter: "VendorRef eq 'PO-${po_nippon}'"
+    top: 1
+  capture: {ReferenceNbr: bill_nippon}
+- id: release-bill-nippon
+  action: {entity: Bill, name: ReleaseBill}
+  record: {Type: Bill, ReferenceNbr: "${bill_nippon}"}
+  wait:
+    entity: Bill
+    keys: [Bill, "${bill_nippon}"]
+    until: {Status: Open}
+- id: pay-nippon
+  put: Check
+  record:
+    Type: Payment
+    Vendor: NIPPON
+    PaymentMethod: WIRE
+    CashAccount: '10100'
+    PaymentAmount: 920.00
+    PaymentRef: "WIRE-AP-${bill_nippon}"
+    Hold: false
+    Details:
+    - {DocType: Bill, ReferenceNbr: "${bill_nippon}", AmountPaid: 920.00}
+  capture: {ReferenceNbr: chk_nippon}
+- id: release-pay-nippon
+  action: {entity: Check, name: ReleaseCheck}
+  record: {Type: Payment, ReferenceNbr: "${chk_nippon}"}
+  wait:
+    entity: Check
+    keys: [Payment, "${chk_nippon}"]
+    until: {Status: Closed}
+- id: po-nordic
+  put: PurchaseOrder
+  record:
+    VendorID: NORDIC
+    Hold: false
+    Details:
+    - {InventoryID: OMEGA370, OrderQty: 10, UnitCost: 55.00}
+    - {InventoryID: ASTA10, OrderQty: 1, UnitCost: 900.00}
+  capture: {OrderNbr: po_nordic}
+- id: rcpt-nordic
+  put: PurchaseReceipt
+  record:
+    Type: Receipt
+    VendorID: NORDIC
+    Hold: false
+    CreateBill: true
+    VendorRef: "PO-${po_nordic}"
+    Details:
+    - {POOrderType: Normal, POOrderNbr: "${po_nordic}", POLineNbr: 1, ReceiptQty: 10}
+    - {POOrderType: Normal, POOrderNbr: "${po_nordic}", POLineNbr: 2, ReceiptQty: 1}
+  capture: {ReceiptNbr: rcpt_nordic}
+- id: release-rcpt-nordic
+  action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}
+  record: {Type: Receipt, ReceiptNbr: "${rcpt_nordic}"}
+  wait:
+    entity: PurchaseReceipt
+    keys: [Receipt, "${rcpt_nordic}"]
+    until: {Status: Released}
+- id: billnbr-nordic
+  get:
+    entity: Bill
+    filter: "VendorRef eq 'PO-${po_nordic}'"
+    top: 1
+  capture: {ReferenceNbr: bill_nordic}
+- id: release-bill-nordic
+  action: {entity: Bill, name: ReleaseBill}
+  record: {Type: Bill, ReferenceNbr: "${bill_nordic}"}
+  wait:
+    entity: Bill
+    keys: [Bill, "${bill_nordic}"]
+    until: {Status: Open}
+- id: pay-nordic
+  put: Check
+  record:
+    Type: Payment
+    Vendor: NORDIC
+    PaymentMethod: WIRE
+    CashAccount: '10100'
+    PaymentAmount: 1450.00
+    PaymentRef: "WIRE-AP-${bill_nordic}"
+    Hold: false
+    Details:
+    - {DocType: Bill, ReferenceNbr: "${bill_nordic}", AmountPaid: 1450.00}
+  capture: {ReferenceNbr: chk_nordic}
+- id: release-pay-nordic
+  action: {entity: Check, name: ReleaseCheck}
+  record: {Type: Payment, ReferenceNbr: "${chk_nordic}"}
+  wait:
+    entity: Check
+    keys: [Payment, "${chk_nordic}"]
+    until: {Status: Closed}
+expect:
+- get:
+    entity: Bill
+    keys: [Bill, "${bill_northbio}"]
+  fields:
+    Status: Closed
+- get:
+    entity: Check
+    keys: [Payment, "${chk_northbio}"]
+  fields:
+    Status: Closed
+- get:
+    entity: Bill
+    keys: [Bill, "${bill_alpine}"]
+  fields:
+    Status: Closed
+- get:
+    entity: Check
+    keys: [Payment, "${chk_alpine}"]
+  fields:
+    Status: Closed
+- get:
+    entity: Bill
+    keys: [Bill, "${bill_pacific}"]
+  fields:
+    Status: Closed
+- get:
+    entity: Check
+    keys: [Payment, "${chk_pacific}"]
+  fields:
+    Status: Closed
+- get:
+    entity: Bill
+    keys: [Bill, "${bill_nippon}"]
+  fields:
+    Status: Closed
+- get:
+    entity: Check
+    keys: [Payment, "${chk_nippon}"]
+  fields:
+    Status: Closed
+- get:
+    entity: Bill
+    keys: [Bill, "${bill_nordic}"]
+  fields:
+    Status: Closed
+- get:
+    entity: Check
+    keys: [Payment, "${chk_nordic}"]
+  fields:
+    Status: Closed
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: ECHEXT4, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 5.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: ELDEXT10, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 5.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: ASHEXT5, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 5.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: RHODEXT3, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 2.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: CURC95, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 5.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: PRB100, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 2.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: COQ1099, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 2.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: THEA98, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 2.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: OMEGA370, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 10.0}
+- inquire: InventorySummaryInquiry
+  parameters: {InventoryID: ASTA10, WarehouseID: WHMISS}
+  delta: {QtyOnHand: 1.0}
+- inquire: AccountSummaryInquiry
+  parameters: {Ledger: ACTUAL, Period: "${current_period}"}
+  match: {Account: '20200'}
+  delta: {EndingBalance: 0.00}
+- inquire: AccountSummaryInquiry
+  parameters: {Ledger: ACTUAL, Period: "${current_period}"}
+  match: {Account: '20100'}
+  delta: {EndingBalance: 0.00}
+- inquire: AccountSummaryInquiry
+  parameters: {Ledger: ACTUAL, Period: "${current_period}"}
+  match: {Account: '10100'}
+  delta: {EndingBalance: -6680.00}

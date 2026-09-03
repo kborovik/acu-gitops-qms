@@ -1,0 +1,77 @@
+entity: Warehouse
+key: WarehouseID
+endpoint: default
+detail_keys:
+  Locations: LocationID
+records:
+- WarehouseID: WHMISS
+  ReceivingLocationID: MAIN
+  ShippingLocationID: MAIN
+  RMALocationID: MAIN
+  Locations:
+  - LocationID: MAIN
+    Description: Main storage and assembly
+    Active: true
+    ReceiptsAllowed: true
+    SalesAllowed: true
+    TransfersAllowed: true
+    AssemblyAllowed: true
+  - LocationID: QCHOLDA
+    Description: QC Hold Bay A botanicals
+    Active: true
+    ReceiptsAllowed: true
+    SalesAllowed: false
+    TransfersAllowed: true
+    AssemblyAllowed: false
+  - LocationID: QCHOLDB
+    Description: QC Hold Bay B imports
+    Active: true
+    ReceiptsAllowed: true
+    SalesAllowed: false
+    TransfersAllowed: true
+    AssemblyAllowed: false
+  - LocationID: QCHOLDC
+    Description: QC Hold Bay C APIs
+    Active: true
+    ReceiptsAllowed: true
+    SalesAllowed: false
+    TransfersAllowed: true
+    AssemblyAllowed: false
+  - LocationID: COLD
+    Description: Cold storage 2-8C
+    Active: true
+    ReceiptsAllowed: true
+    SalesAllowed: true
+    TransfersAllowed: true
+    AssemblyAllowed: true
+  - LocationID: FG
+    Description: Finished goods staging
+    Active: true
+    ReceiptsAllowed: true
+    SalesAllowed: true
+    TransfersAllowed: true
+    AssemblyAllowed: true
+- WarehouseID: WHQC
+  ReceivingLocationID: MAIN
+  ShippingLocationID: MAIN
+  RMALocationID: MAIN
+  Locations:
+  - LocationID: MAIN
+    Description: Main storage
+    Active: true
+    ReceiptsAllowed: true
+    SalesAllowed: true
+    TransfersAllowed: true
+    AssemblyAllowed: true
+- WarehouseID: WHBC
+  ReceivingLocationID: MAIN
+  ShippingLocationID: MAIN
+  RMALocationID: MAIN
+  Locations:
+  - LocationID: MAIN
+    Description: Main storage
+    Active: true
+    ReceiptsAllowed: true
+    SalesAllowed: true
+    TransfersAllowed: true
+    AssemblyAllowed: true
