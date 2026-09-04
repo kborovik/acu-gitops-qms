@@ -1,5 +1,0 @@
-cells:
-  - id: "26r1"
-    erp: "26.101.0225"
-    default_api: "25.200.001"
-    base_url: "http://acu-26r1-dev1.vm.internal/AcumaticaERP"
