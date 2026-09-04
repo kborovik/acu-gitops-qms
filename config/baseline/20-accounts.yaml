@@ -51,6 +51,7 @@ records:
   custom:
     AccountRecords:
       ControlAccountModule: IN
+# IN Setup WIP/transit (INProgressAcctID / INTransitAcctID) cannot be IN control accounts.
 - AccountCD: '12300'
   Active: true
   Description: Work In Progress
@@ -59,9 +60,6 @@ records:
   Secured: false
   Type: Asset
   UseDefaultSubaccount: false
-  custom:
-    AccountRecords:
-      ControlAccountModule: IN
 - AccountCD: '12400'
   Active: true
   Description: Inventory In Transit
@@ -70,9 +68,6 @@ records:
   Secured: false
   Type: Asset
   UseDefaultSubaccount: false
-  custom:
-    AccountRecords:
-      ControlAccountModule: IN
 - AccountCD: '15000'
   Active: true
   Description: Prepaid Expenses

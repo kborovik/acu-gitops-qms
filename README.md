@@ -10,11 +10,13 @@ Sourced from the company profile and master data in
 Inventory and vendor IDs are the domain catalog IDs (length at most 30). Warehouse
 `SiteCD` stays 10 characters (`WH-MISS-01`).
 
-Until [acumatica-cli#30](https://github.com/kborovik/acumatica-cli/issues/30)
-ships, set CS202000 `INVENTORY` and `BIZACCT` segment 1 length to 30 on the
-empty tenant before `acu apply`.
+`config/bootstrap/segmented-key.yaml` raises CS202000 `INVENTORY` and
+`BIZACCT` segment 1 to length 30 (DAC max) before StockItem / Vendor /
+Customer. `ACCOUNT` and `INSITE` stay 10.
 
 **Start from a brand-new empty tenant.** Do not apply onto a half-configured company.
+
+Republish AcuBootstrap (`acu bootstrap`, contract 1.6.0) so SegmentedKey maps `Length` to CS202000 `Detail`.
 
 ## Rebuild order
 
@@ -94,7 +96,7 @@ ImmunoShield `0.012` + `0.009` + `0.006` KG; CardioPure `0.060` + `0.006` + `0.0
 | Path | Role |
 |------|------|
 | `matrix.yaml` | Multi-host pin+where: cells `id`+`erp`+`default_api`+`base_url` (V27); `--cell` selects |
-| `config/bootstrap/` | Company, features, credit terms (Bootstrap contract is package SoT — never scaffolded) |
+| `config/bootstrap/` | Company, features, credit terms, segmented keys (Bootstrap contract is package SoT — never scaffolded) |
 | `config/baseline/` | GL foundation (COA, ledger, subaccounts, UOMs) |
 | `config/setup/` | Financial year, master calendar, open periods |
 | `config/master/` | Numbering (`05-numbering-sequences`) before module prefs; inventory, warehouse, items, vendors, customers; roles/users (`90-roles` then `91-users`) |

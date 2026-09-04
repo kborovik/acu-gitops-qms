@@ -36,4 +36,4 @@ records:
   SendOrdersbyEmail: false
   MainContact:
     Address:
-      Country: NO
+      Country: "NO" # YAML 1.1: unquoted NO is boolean false
