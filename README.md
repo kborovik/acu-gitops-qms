@@ -1,13 +1,14 @@
-# CanNordic BioNutra Inc. (`acu` data repo)
+# CanNordic BioNutra Inc. (`acu-gitops-qms`)
 
 Virgin-tenant Acumatica seed for **CanNordic BioNutra Inc.** (AcctCD `CNBN`), a
 Canadian CDMO and ingredient importer (NHPs, functional foods). Finance +
-inventory/distribution + kit assembly. Single full seed — no `--flavor`.
+inventory/distribution + kit assembly. QMS tenant for
+[`gcp-acu-coa`](https://github.com/kborovik/gcp-acu-coa). Single full seed — no `--flavor`.
 
 Sourced from the company profile and master data in
-[`gcp-acu-coa`](../gcp-acu-coa/domain/COMPANY_PROFILE.md). Inventory and
-vendor IDs are the domain catalog IDs (length at most 30). Warehouse `SiteCD`
-stays 10 characters (`WH-MISS-01`).
+[`gcp-acu-coa`](https://github.com/kborovik/gcp-acu-coa/blob/main/domain/COMPANY_PROFILE.md).
+Inventory and vendor IDs are the domain catalog IDs (length at most 30). Warehouse
+`SiteCD` stays 10 characters (`WH-MISS-01`).
 
 Until [acumatica-cli#30](https://github.com/kborovik/acumatica-cli/issues/30)
 ships, set CS202000 `INVENTORY` and `BIZACCT` segment 1 length to 30 on the
