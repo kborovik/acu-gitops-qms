@@ -93,5 +93,31 @@ class TestV5EmailFollowsUsername(unittest.TestCase):
             self.assertEqual(user["Email"], f"{user['Username']}@cannordic.ca")
 
 
+class TestV4LlmAgentQmRole(unittest.TestCase):
+    def test_llm_agent_role_exists_with_qm_descr(self):
+        roles = {r["Rolename"]: r for r in load_records(ROLES)}
+        self.assertIn("LLM Agent", roles)
+        descr = roles["LLM Agent"]["Descr"]
+        self.assertIn("QM documents", descr)
+        self.assertIn("inspection orders", descr)
+        self.assertIn("CoA files", descr)
+        self.assertIn("NCR", descr)
+
+    def test_stock_roles_still_present(self):
+        names = {r["Rolename"] for r in load_records(ROLES)}
+        for stock in (
+            "Administrator",
+            "IN Manager",
+            "PO Viewer",
+            "PO Admin",
+            "SO Admin",
+            "IN Receiver",
+            "PO Clerk",
+            "LLM Prompt Engineer",
+            "LLM Security Expert",
+        ):
+            self.assertIn(stock, names)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -114,6 +114,8 @@ records:
   Descr: Allows the user to change personal  settings, and view Help
 - Rolename: Inventory Data Manager
   Descr: Full access to data entry forms related to inventory items
+- Rolename: LLM Agent
+  Descr: QM documents (inspection orders, CoA files, NCR)
 - Rolename: LLM Prompt Engineer
   Descr: Authorization to create LLM Prompts
 - Rolename: LLM Security Expert
