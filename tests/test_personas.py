@@ -93,6 +93,17 @@ class TestV5EmailFollowsUsername(unittest.TestCase):
             self.assertEqual(user["Email"], f"{user['Username']}@cannordic.ca")
 
 
+class TestV4LlmAgentQmUser(unittest.TestCase):
+    def test_llm_agent_user_is_not_a_human_persona(self):
+        user = users_by_username()["llm-agent"]
+        self.assertEqual(user["FirstName"], "LLM")
+        self.assertEqual(user["LastName"], "Agent")
+        self.assertEqual(user["Email"], "llm-agent@cannordic.ca")
+        roles = [r["Rolename"] for r in user["Roles"] if r.get("Selected")]
+        self.assertEqual(roles, ["LLM Agent"])
+        self.assertNotEqual(user["Username"], "LLM Agent")
+
+
 class TestV4LlmAgentQmRole(unittest.TestCase):
     def test_llm_agent_role_exists_with_qm_descr(self):
         roles = {r["Rolename"]: r for r in load_records(ROLES)}

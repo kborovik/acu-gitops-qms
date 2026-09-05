@@ -50,3 +50,13 @@ records:
   Roles:
   - Rolename: Administrator
     Selected: true
+- Username: llm-agent
+  FirstName: LLM
+  LastName: Agent
+  Email: llm-agent@cannordic.ca
+  IsApproved: true
+  PasswordNeverExpires: true
+  PasswordChangeOnNextLogin: false
+  Roles:
+  - Rolename: LLM Agent
+    Selected: true
