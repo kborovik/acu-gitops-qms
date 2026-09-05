@@ -1,0 +1,97 @@
+"""Persona seed invariants (SPEC.md §V.1–§V.6)."""
+
+from __future__ import annotations
+
+import json
+import re
+import subprocess
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+USERS = ROOT / "config/master/91-users.yaml"
+ROLES = ROOT / "config/master/90-roles.yaml"
+README = ROOT / "README.md"
+
+PERSON_USERNAMES = ("etremblay", "mvance", "dsingh", "sarchambault")
+
+JOB_USERS = {
+    "qa-director": {
+        "FirstName": "Elodie",
+        "LastName": "Tremblay",
+        "roles": ["IN Manager", "PO Viewer"],
+    },
+    "vp-supply-chain": {
+        "FirstName": "Marcus",
+        "LastName": "Vance",
+        "roles": ["PO Admin", "SO Admin"],
+    },
+    "receiving-supervisor": {
+        "FirstName": "Devon",
+        "LastName": "Singh",
+        "roles": ["IN Receiver", "PO Clerk"],
+    },
+    "erp-architect": {
+        "FirstName": "Sophie",
+        "LastName": "Archambault",
+        "roles": ["Administrator"],
+    },
+}
+
+KEBAB = re.compile(r"^[a-z]+(-[a-z0-9]+)*$")
+
+
+def load_records(path: Path) -> list[dict]:
+    out = subprocess.check_output(["yq", "-o=json", ".records", str(path)])
+    return json.loads(out)
+
+
+def users_by_username() -> dict[str, dict]:
+    return {u["Username"]: u for u in load_records(USERS)}
+
+
+class TestV1LoginIsJobFunction(unittest.TestCase):
+    def test_usernames_are_kebab_case_job_functions(self):
+        names = [u["Username"] for u in load_records(USERS)]
+        for name in names:
+            with self.subTest(username=name):
+                self.assertRegex(name, KEBAB)
+                self.assertNotIn(name, PERSON_USERNAMES)
+        for expected in JOB_USERS:
+            self.assertIn(expected, names)
+
+    def test_person_initial_usernames_absent_from_users_yaml(self):
+        names = {u["Username"] for u in load_records(USERS)}
+        for old in PERSON_USERNAMES:
+            self.assertNotIn(old, names)
+
+
+class TestV2DisplayNameIsPerson(unittest.TestCase):
+    def test_human_given_names_stay(self):
+        by_name = users_by_username()
+        for username, expected in JOB_USERS.items():
+            user = by_name[username]
+            self.assertEqual(user["FirstName"], expected["FirstName"])
+            self.assertEqual(user["LastName"], expected["LastName"])
+
+
+class TestV3ErpRolesStayBundled(unittest.TestCase):
+    def test_each_login_keeps_erp_role_set(self):
+        by_name = users_by_username()
+        for username, expected in JOB_USERS.items():
+            got = [
+                r["Rolename"]
+                for r in by_name[username]["Roles"]
+                if r.get("Selected")
+            ]
+            self.assertEqual(got, expected["roles"])
+
+
+class TestV5EmailFollowsUsername(unittest.TestCase):
+    def test_email_is_username_at_cannordic(self):
+        for user in load_records(USERS):
+            self.assertEqual(user["Email"], f"{user['Username']}@cannordic.ca")
+
+
+if __name__ == "__main__":
+    unittest.main()

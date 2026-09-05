@@ -4,10 +4,10 @@ endpoint: bootstrap
 detail_keys:
   Roles: Rolename
 records:
-- Username: etremblay
+- Username: qa-director
   FirstName: Elodie
   LastName: Tremblay
-  Email: etremblay@cannordic.ca
+  Email: qa-director@cannordic.ca
   IsApproved: true
   PasswordNeverExpires: true
   PasswordChangeOnNextLogin: false
@@ -16,10 +16,10 @@ records:
     Selected: true
   - Rolename: PO Viewer
     Selected: true
-- Username: mvance
+- Username: vp-supply-chain
   FirstName: Marcus
   LastName: Vance
-  Email: mvance@cannordic.ca
+  Email: vp-supply-chain@cannordic.ca
   IsApproved: true
   PasswordNeverExpires: true
   PasswordChangeOnNextLogin: false
@@ -28,10 +28,10 @@ records:
     Selected: true
   - Rolename: SO Admin
     Selected: true
-- Username: dsingh
+- Username: receiving-supervisor
   FirstName: Devon
   LastName: Singh
-  Email: dsingh@cannordic.ca
+  Email: receiving-supervisor@cannordic.ca
   IsApproved: true
   PasswordNeverExpires: true
   PasswordChangeOnNextLogin: false
@@ -40,10 +40,10 @@ records:
     Selected: true
   - Rolename: PO Clerk
     Selected: true
-- Username: sarchambault
+- Username: erp-architect
   FirstName: Sophie
   LastName: Archambault
-  Email: sarchambault@cannordic.ca
+  Email: erp-architect@cannordic.ca
   IsApproved: true
   PasswordNeverExpires: true
   PasswordChangeOnNextLogin: false
