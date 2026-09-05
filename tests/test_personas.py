@@ -93,6 +93,31 @@ class TestV5EmailFollowsUsername(unittest.TestCase):
             self.assertEqual(user["Email"], f"{user['Username']}@cannordic.ca")
 
 
+def readme_persona_usernames() -> list[str]:
+    names: list[str] = []
+    in_table = False
+    for line in README.read_text().splitlines():
+        if line.startswith("| User |"):
+            in_table = True
+            continue
+        if not in_table:
+            continue
+        if not line.startswith("|"):
+            break
+        if re.match(r"^\|[\s|-]+\|$", line):
+            continue
+        match = re.match(r"^\| `([^`]+)` \|", line)
+        if match:
+            names.append(match.group(1))
+    return names
+
+
+class TestV6PersonasSync(unittest.TestCase):
+    def test_readme_usernames_match_users_yaml(self):
+        yaml_names = [u["Username"] for u in load_records(USERS)]
+        self.assertEqual(readme_persona_usernames(), yaml_names)
+
+
 class TestV4LlmAgentQmUser(unittest.TestCase):
     def test_llm_agent_user_is_not_a_human_persona(self):
         user = users_by_username()["llm-agent"]

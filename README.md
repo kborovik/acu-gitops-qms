@@ -115,7 +115,8 @@ Monoscenario `buy-sell` is not part of this package.
 
 | User | Role | ERP roles |
 | --- | --- | --- |
-| `etremblay` | Dr. Elodie Tremblay, Director of QA | IN Manager, PO Viewer |
-| `mvance` | Marcus Vance, VP Supply Chain | PO Admin, SO Admin |
-| `dsingh` | Devon Singh, Receiving Supervisor | IN Receiver, PO Clerk |
-| `sarchambault` | Sophie Archambault, ERP Architect | Administrator |
+| `qa-director` | Dr. Elodie Tremblay, Director of QA | IN Manager, PO Viewer |
+| `vp-supply-chain` | Marcus Vance, VP Supply Chain | PO Admin, SO Admin |
+| `receiving-supervisor` | Devon Singh, Receiving Supervisor | IN Receiver, PO Clerk |
+| `erp-architect` | Sophie Archambault, ERP Architect | Administrator |
+| `llm-agent` | LLM Agent | LLM Agent |
