@@ -34,7 +34,7 @@ T1|x|swap 91-users.yaml Username+Email: etremblay→qa-director, mvance→vp-sup
 T2|x|add Rolename `LLM Agent` in 90-roles.yaml Descr QM documents (inspection orders, CoA files, NCR)|V4
 T3|x|add user llm-agent FirstName LLM LastName Agent Email llm-agent@cannordic.ca Roles LLM Agent|V4,V5
 T4|x|sync README Personas table to job-function Usernames + llm-agent row|V6
-T5|.|sweep leftover personal usernames grep `etremblay|mvance|dsingh|sarchambault`|V1
+T5|x|sweep leftover personal usernames grep `etremblay|mvance|dsingh|sarchambault`|V1
 
 ## §B BUGS
 id|date|cause|fix

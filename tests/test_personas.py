@@ -118,6 +118,25 @@ class TestV6PersonasSync(unittest.TestCase):
         self.assertEqual(readme_persona_usernames(), yaml_names)
 
 
+SKIP_DIRS = {".git", "__pycache__", ".spec", "tests"}
+SKIP_FILES = {"SPEC.md", ".env", ".env.gpg"}
+
+
+class TestV1LeftoverSweep(unittest.TestCase):
+    def test_person_usernames_absent_from_seed_surfaces(self):
+        pattern = re.compile("|".join(re.escape(n) for n in PERSON_USERNAMES))
+        hits: list[str] = []
+        for path in ROOT.rglob("*"):
+            if any(part in SKIP_DIRS for part in path.parts):
+                continue
+            if path.name in SKIP_FILES or not path.is_file():
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            if pattern.search(text):
+                hits.append(str(path.relative_to(ROOT)))
+        self.assertEqual(hits, [])
+
+
 class TestV4LlmAgentQmUser(unittest.TestCase):
     def test_llm_agent_user_is_not_a_human_persona(self):
         user = users_by_username()["llm-agent"]
