@@ -16,7 +16,7 @@ Customer. `ACCOUNT` and `INSITE` stay 10.
 
 **Start from a brand-new empty tenant.** Do not apply onto a half-configured company.
 
-Republish AcuBootstrap (`acu bootstrap`, contract 1.6.0) so SegmentedKey maps `Length` to CS202000 `Detail`.
+Republish AcuBootstrap (`acu bootstrap`, contract 1.7.0) so Company maps CS101500 `DecPlQty` (this seed sets 3 for milligram-scale KG kit BOMs) and SegmentedKey maps `Length` to CS202000 `Detail`.
 
 ## Rebuild order
 
