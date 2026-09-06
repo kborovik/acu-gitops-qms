@@ -40,10 +40,10 @@ Chrome DevTools works if Chrome is already running. Otherwise curl/python with t
 
 Lookup order:
 
-1. **Screen ID** (preferred). `GET /ui/help/SM201010` → JSON `{url, wiki, article, wikiName, html}`. `article` is the form-reference `pageid`. `html` is related-topic links (`wikiname` + `PageID`), not the full article.
+1. **Screen ID** (preferred). `GET /ui/help/SM201010` produces JSON `{url, wiki, article, wikiName, html}`. `article` is the form-reference `pageid`. `html` is related-topic links (`wikiname` + `PageID`), not the full article.
 2. **Article text.** `GET /Wiki/ShowExport.aspx?PageID={article}&type=txt` (plain text). Concept pages: `GET /Wiki/ShowWiki.aspx?wikiname=HelpRoot_Administration&PageID={guid}` or `ShowExport` on that `PageID`.
-3. **Tree.** `GET /ui/helptree` (wiki roots) → `GET /ui/helptree/{wiki-guid}` (children; each has `url` with `pageid`). System Administration wiki id: `20f237dd-409f-4338-b5ef-39cff26e1930`.
+3. **Tree.** `GET /ui/helptree` (wiki roots) leads to `GET /ui/helptree/{wiki-guid}` (children; each has `url` with `pageid`). System Administration wiki id: `20f237dd-409f-4338-b5ef-39cff26e1930`.
 4. **Field contracts** (length, `InputMask`, uniqueness). Help does not state these — DAC / product source.
 
-Example: Users (`SM201010`) → `/ui/help/SM201010` → export `834cc181-97fa-4db4-a7e0-3eaba142c166`; related concept `User Access: General Information` is `PageID=4fffce52-0091-4d33-ba3c-b4a756b45670`.
+Example: Users (`SM201010`) leads to `/ui/help/SM201010`, then export `834cc181-97fa-4db4-a7e0-3eaba142c166`; related concept `User Access: General Information` is `PageID=4fffce52-0091-4d33-ba3c-b4a756b45670`.
 

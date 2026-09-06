@@ -101,9 +101,9 @@ ImmunoShield `0.012` + `0.009` + `0.006` KG; CardioPure `0.060` + `0.006` + `0.0
 | `config/setup/` | Financial year, master calendar, open periods |
 | `config/master/` | Numbering (`05-numbering-sequences`) before module prefs; inventory, warehouse, items, vendors, customers; roles/users (`90-roles` then `91-users`) |
 | `scenario/10-seed-capital.yaml` | Once-class owner capital JE (skip-if-present when present); Period = `${current_period}` |
-| `scenario/20-buy.yaml` | Additive ingredient PO → receipt → bill → AP pay (four suppliers, kit BOM only) |
+| `scenario/20-buy.yaml` | Additive ingredient PO, then receipt, then bill, then AP pay (four suppliers, kit BOM only) |
 | `scenario/30-build.yaml` | Additive kit assembly (ImmunoShield + CardioPure) |
-| `scenario/40-sell.yaml` | Additive SO → ship → invoice → AR pay (three brand customers) |
+| `scenario/40-sell.yaml` | Additive SO, then ship, then invoice, then AR pay (three brand customers) |
 | `config/views/10-trial-balance.yaml` | Observer view (EndingBalance inquire; Period pinned literal; not SEED_DIRS) |
 | `state/` | Written by `acu state` (derived-state observations) |
 
