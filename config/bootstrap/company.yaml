@@ -7,6 +7,3 @@ records:
   OrganizationType: Without Branches
   BaseCuryID: CAD
   CountryID: CA
-  DecPlQty: 3
-  WeightUOM: KG
-  VolumeUOM: LITER

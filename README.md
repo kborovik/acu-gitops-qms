@@ -16,17 +16,18 @@ Customer. `ACCOUNT` and `INSITE` stay 10.
 
 **Start from a brand-new empty tenant.** Do not apply onto a half-configured company.
 
-Republish AcuBootstrap (`acu bootstrap`, contract 1.7.0) so Company maps CS101500 `DecPlQty` (this seed sets 3 for milligram-scale KG kit BOMs) and SegmentedKey maps `Length` to CS202000 `Detail`.
+Republish AcuBootstrap (`acu bootstrap`, packaged Bootstrap 1.10.0) so
+Company maps CS101500 `DecPlQty` (this seed sets 3 for milligram-scale KG
+kit BOMs), SegmentedKey maps `Length` to CS202000 `Detail`, and Role
+`AssignUser` persists `UsersInRoles`.
 
 ## Rebuild order
 
 ```sh
-# 1. Credentials in .env (ACU_PASSWORD, ACU_TENANT, …)
-#    Default API pin + REST where = committed matrix.yaml cell
-#    (default_api + base_url; not sticky ACU_BASE_URL / ACU_API_VERSION)
+# 1. Credentials in .env (ACU_PASSWORD, ACU_TENANT, ACU_BASE_URL, ACU_API_VERSION)
 acu config check
 
-# 2. Publish Bootstrap (features + contract from config/bootstrap/)
+# 2. Publish Bootstrap (features + contract from package)
 acu bootstrap
 
 # 3. Seed config umbrella (bootstrap → baseline → setup → master)
@@ -35,16 +36,16 @@ acu apply
 # 4. Lifecycle scenarios (once capital → buy → build → sell)
 acu run
 
-# 5. Prove no drift
+# 5. After Lab5.QMS is published: inspection plans + UsrQMS* + Quality Manager users
+acu apply config/qms/
+
+# 6. Prove no drift (SEED_DIRS only; config/qms/ is post-publish)
 acu diff
 
-# 6. Capture derived-state observations (EndingBalance trial-balance)
+# 7. Capture derived-state observations (EndingBalance trial-balance)
 acu state
 # warm gate: once-capital only — additive buy/sell moves numeric observations
 acu run scenario/10-seed-capital.yaml && acu state --assert-unchanged
-
-# 7. Cold matrix lifecycle (SSH + tenant; optional multi-cell --all)
-# acu check --yes
 
 # Optional: re-seed from live (inverse of apply; always under config/)
 # acu extract --out . --force
@@ -52,6 +53,9 @@ acu run scenario/10-seed-capital.yaml && acu state --assert-unchanged
 
 Bare `acu apply` / `acu diff` also prefer `config/` when those trees exist.
 `acu extract` hard-cuts emit to `config/{bootstrap,baseline,setup,master}/` (never root SEED_DIRS).
+`config/qms/` is not a SEED_DIR — apply it only after Lab5.QMS is published.
+
+InspectionPlan GET works on `QMS/22.200.001`. PUT currently 500s (`QMSInspectionPlan` synonym schema cache) — seed plans via SQL or the QM.20.10.00 screen until that PUT is fixed in Lab5.QMS. Default `StockItem` does not map `UsrQMS*` fields; set those on the Stock Items form (or SQL) after publish.
 
 ## Company
 
@@ -79,29 +83,32 @@ ImmunoShield `0.012` + `0.009` + `0.006` KG; CardioPure `0.060` + `0.006` + `0.0
 | `VEND-ALPINE-EXT` | vendor |
 | `VEND-NIPPON-PHARMA` | vendor |
 | `VEND-NORDIC-MAR` | vendor |
-| `RAW-ECH-EXT4` | raw |
-| `RAW-ELD-EXT10` | raw |
-| `RAW-ASH-EXT5` | raw |
-| `RAW-COQ10-99` | raw |
-| `RAW-OMEGA3-70` | raw |
-| `RAW-ASTA-10` | raw |
+| `RAW-ECH-EXT4` | raw (lot `LOTRAW`, plan `PLAN-ECH-EXT4`) |
+| `RAW-ELD-EXT10` | raw (lot `LOTRAW`, plan `PLAN-ELD-EXT10`) |
+| `RAW-ASH-EXT5` | raw (lot `LOTRAW`, plan `PLAN-ASH-EXT5`) |
+| `RAW-COQ10-99` | raw (lot `LOTRAW`, plan `PLAN-COQ10-99`) |
+| `RAW-OMEGA3-70` | raw (lot `LOTRAW`, plan `PLAN-OMEGA3-70`) |
+| `RAW-ASTA-10` | raw (lot `LOTRAW`, plan `PLAN-ASTA-10`) |
 | `FG-IMMUNE-DEFENSE-60C` | kit |
 | `FG-CARDIO-OMEGA-COQ10-60SG` | kit |
 | `VITALPLUS` | customer |
 | `HEARTLAB` | customer |
 | `WELLCAN` | customer |
+| `LOTRAW` | lot/serial class (When Received, user-enterable, expiry) |
+| `QORD` / `QNCR` | numbering (inspection orders / NCR) |
 
 ## Layout
 
 | Path | Role |
 |------|------|
-| `matrix.yaml` | Multi-host pin+where: cells `id`+`erp`+`default_api`+`base_url` (V27); `--cell` selects |
-| `config/bootstrap/` | Company, features, credit terms, segmented keys (Bootstrap contract is package SoT — never scaffolded) |
-| `config/baseline/` | GL foundation (COA, ledger, subaccounts, UOMs) |
+| `.env` | Secrets + REST where (`ACU_BASE_URL`) + Default pin (`ACU_API_VERSION`) |
+| `config/bootstrap/` | Company identity, features, credit terms, segmented keys (Bootstrap contract is package SoT — never scaffolded) |
+| `config/baseline/` | GL foundation (COA, ledger, subaccounts, UOMs, company packaging `91-company-packaging`) |
 | `config/setup/` | Financial year, master calendar, open periods |
-| `config/master/` | Numbering (`05-numbering-sequences`) before module prefs; inventory, warehouse, items, vendors, customers; roles/users (`90-roles` then `91-users`) |
+| `config/master/` | Numbering (`05-numbering-sequences` includes `QORD`/`QNCR`) before module prefs; `LOTRAW`; inventory, warehouse, items, vendors, customers; roles/users (`90-roles` then `91-users` then `92-role-users`) |
+| `config/qms/` | Post-publish Lab5.QMS: inspection plans, StockItem UsrQMS*, Quality Manager user attach. Not SEED_DIRS |
 | `scenario/10-seed-capital.yaml` | Once-class owner capital JE (skip-if-present when present); Period = `${current_period}` |
-| `scenario/20-buy.yaml` | Additive ingredient PO, then receipt, then bill, then AP pay (four suppliers, kit BOM only) |
+| `scenario/20-buy.yaml` | Additive ingredient PO, then receipt (lot + expiry), then bill, then AP pay (four suppliers, kit BOM only) |
 | `scenario/30-build.yaml` | Additive kit assembly (ImmunoShield + CardioPure) |
 | `scenario/40-sell.yaml` | Additive SO, then ship, then invoice, then AR pay (three brand customers) |
 | `config/views/10-trial-balance.yaml` | Observer view (EndingBalance inquire; Period pinned literal; not SEED_DIRS) |
@@ -115,8 +122,8 @@ Monoscenario `buy-sell` is not part of this package.
 
 | User | Role | ERP roles |
 | --- | --- | --- |
-| `qa-director` | Dr. Elodie Tremblay, Director of QA | IN Manager, PO Viewer |
+| `qa-director` | Dr. Elodie Tremblay, Director of QA | IN Manager, PO Viewer (+ Quality Manager after `config/qms/`) |
 | `vp-supply-chain` | Marcus Vance, VP Supply Chain | PO Admin, SO Admin |
 | `receiving-supervisor` | Devon Singh, Receiving Supervisor | IN Receiver, PO Clerk |
 | `erp-architect` | Sophie Archambault, ERP Architect | Administrator |
-| `llm-agent` | LLM Agent | LLM Agent |
+| `llm-agent` | LLM Agent | LLM Agent (+ Quality Manager after `config/qms/`) |

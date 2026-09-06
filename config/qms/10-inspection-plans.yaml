@@ -1,0 +1,135 @@
+entity: InspectionPlan
+key: PlanID
+endpoint: QMS/22.200.001
+detail_keys:
+  Tests: LineNbr
+records:
+- PlanID: PLAN-ECH-EXT4
+  Description: Echinacea extract 4% polyphenols
+  InventoryID: RAW-ECH-EXT4
+  SamplingPlan: ISO 2859-1 Level II Normal
+  Status: A
+  Tests:
+  - LineNbr: 10
+    TestID: ASSAY_POLYPHENOLS
+    Description: Total polyphenols
+    TestMethod: UV-Vis
+    TargetValue: 4.0
+    MinValue: 3.0
+    MaxValue: 5.0
+    UOM: '% (w/w)'
+    Criticality: C
+  - LineNbr: 20
+    TestID: APPEARANCE
+    Description: Visual appearance
+    TestMethod: Organoleptic
+    UOM: n/a
+    Criticality: M
+- PlanID: PLAN-ELD-EXT10
+  Description: Elderberry extract 10% anthocyanins
+  InventoryID: RAW-ELD-EXT10
+  SamplingPlan: ISO 2859-1 Level II Normal
+  Status: A
+  Tests:
+  - LineNbr: 10
+    TestID: ASSAY_ANTHOCYANINS
+    Description: Total anthocyanins
+    TestMethod: UV-Vis
+    TargetValue: 10.0
+    MinValue: 8.0
+    MaxValue: 12.0
+    UOM: '% (w/w)'
+    Criticality: C
+  - LineNbr: 20
+    TestID: APPEARANCE
+    Description: Visual appearance
+    TestMethod: Organoleptic
+    UOM: n/a
+    Criticality: M
+- PlanID: PLAN-ASH-EXT5
+  Description: Ashwagandha extract 5% withanolides
+  InventoryID: RAW-ASH-EXT5
+  SamplingPlan: ISO 2859-1 Level II Normal
+  Status: A
+  Tests:
+  - LineNbr: 10
+    TestID: ASSAY_WITHANOLIDES
+    Description: Total withanolides
+    TestMethod: HPLC
+    TargetValue: 5.0
+    MinValue: 4.0
+    MaxValue: 6.0
+    UOM: '% (w/w)'
+    Criticality: C
+  - LineNbr: 20
+    TestID: APPEARANCE
+    Description: Visual appearance
+    TestMethod: Organoleptic
+    UOM: n/a
+    Criticality: M
+- PlanID: PLAN-COQ10-99
+  Description: Coenzyme Q10 USP 99%
+  InventoryID: RAW-COQ10-99
+  SamplingPlan: ISO 2859-1 Level II Normal
+  Status: A
+  Tests:
+  - LineNbr: 10
+    TestID: ASSAY_COQ10
+    Description: Ubiquinone assay
+    TestMethod: HPLC
+    TargetValue: 99.0
+    MinValue: 98.0
+    MaxValue: 100.5
+    UOM: '% (w/w)'
+    Criticality: C
+  - LineNbr: 20
+    TestID: APPEARANCE
+    Description: Visual appearance
+    TestMethod: Organoleptic
+    UOM: n/a
+    Criticality: M
+- PlanID: PLAN-OMEGA3-70
+  Description: Marine omega-3 TG oil 70% EPA/DHA
+  InventoryID: RAW-OMEGA3-70
+  SamplingPlan: ISO 2859-1 Level II Normal
+  Status: A
+  Tests:
+  - LineNbr: 10
+    TestID: ASSAY_EPADHA
+    Description: EPA + DHA
+    TestMethod: GC-FID
+    TargetValue: 70.0
+    MinValue: 65.0
+    MaxValue: 75.0
+    UOM: '% (w/w)'
+    Criticality: C
+  - LineNbr: 20
+    TestID: PEROXIDE
+    Description: Peroxide value
+    TestMethod: Titration
+    TargetValue: 2.0
+    MinValue: 0.0
+    MaxValue: 5.0
+    UOM: meq/kg
+    Criticality: M
+- PlanID: PLAN-ASTA-10
+  Description: Natural astaxanthin oleoresin 10%
+  InventoryID: RAW-ASTA-10
+  SamplingPlan: ISO 2859-1 Level II Normal
+  Status: A
+  Tests:
+  - LineNbr: 10
+    TestID: ASSAY_ASTAXANTHIN
+    Description: Astaxanthin
+    TestMethod: HPLC
+    TargetValue: 10.0
+    MinValue: 9.0
+    MaxValue: 11.0
+    UOM: '% (w/w)'
+    Criticality: C
+  - LineNbr: 20
+    TestID: APPEARANCE
+    Description: Visual appearance
+    TestMethod: Organoleptic
+    UOM: n/a
+    Criticality: M

@@ -1,0 +1,10 @@
+entity: Role
+key: Rolename
+endpoint: bootstrap
+detail_keys:
+  Users: Username
+records:
+- Rolename: Quality Manager
+  Users:
+  - Username: qa-director
+  - Username: llm-agent

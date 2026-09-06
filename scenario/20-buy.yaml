@@ -19,8 +19,8 @@ steps:
     CreateBill: true
     VendorRef: "PO-${po_northbio}"
     Details:
-    - {POOrderType: Normal, POOrderNbr: "${po_northbio}", POLineNbr: 1, ReceiptQty: 5}
-    - {POOrderType: Normal, POOrderNbr: "${po_northbio}", POLineNbr: 2, ReceiptQty: 5}
+    - {POOrderType: Normal, POOrderNbr: "${po_northbio}", POLineNbr: 1, ReceiptQty: 5, Location: MAIN, LotSerialNbr: NB-ECH-25001, ExpirationDate: '2028-12-31'}
+    - {POOrderType: Normal, POOrderNbr: "${po_northbio}", POLineNbr: 2, ReceiptQty: 5, Location: MAIN, LotSerialNbr: NB-ELD-25001, ExpirationDate: '2028-12-31'}
   capture: {ReceiptNbr: rcpt_northbio}
 - id: release-rcpt-northbio
   action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}
@@ -79,7 +79,7 @@ steps:
     CreateBill: true
     VendorRef: "PO-${po_alpine}"
     Details:
-    - {POOrderType: Normal, POOrderNbr: "${po_alpine}", POLineNbr: 1, ReceiptQty: 5}
+    - {POOrderType: Normal, POOrderNbr: "${po_alpine}", POLineNbr: 1, ReceiptQty: 5, Location: MAIN, LotSerialNbr: AB-ASH-25001, ExpirationDate: '2028-12-31'}
   capture: {ReceiptNbr: rcpt_alpine}
 - id: release-rcpt-alpine
   action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}
@@ -138,7 +138,7 @@ steps:
     CreateBill: true
     VendorRef: "PO-${po_nippon}"
     Details:
-    - {POOrderType: Normal, POOrderNbr: "${po_nippon}", POLineNbr: 1, ReceiptQty: 2}
+    - {POOrderType: Normal, POOrderNbr: "${po_nippon}", POLineNbr: 1, ReceiptQty: 2, Location: MAIN, LotSerialNbr: NP-COQ-25001, ExpirationDate: '2028-12-31'}
   capture: {ReceiptNbr: rcpt_nippon}
 - id: release-rcpt-nippon
   action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}
@@ -198,8 +198,8 @@ steps:
     CreateBill: true
     VendorRef: "PO-${po_nordic}"
     Details:
-    - {POOrderType: Normal, POOrderNbr: "${po_nordic}", POLineNbr: 1, ReceiptQty: 10}
-    - {POOrderType: Normal, POOrderNbr: "${po_nordic}", POLineNbr: 2, ReceiptQty: 1}
+    - {POOrderType: Normal, POOrderNbr: "${po_nordic}", POLineNbr: 1, ReceiptQty: 10, Location: MAIN, LotSerialNbr: NM-OM3-25001, ExpirationDate: '2028-12-31'}
+    - {POOrderType: Normal, POOrderNbr: "${po_nordic}", POLineNbr: 2, ReceiptQty: 1, Location: MAIN, LotSerialNbr: NM-AST-25001, ExpirationDate: '2028-12-31'}
   capture: {ReceiptNbr: rcpt_nordic}
 - id: release-rcpt-nordic
   action: {entity: PurchaseReceipt, name: ReleasePurchaseReceipt}

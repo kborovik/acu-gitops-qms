@@ -1,0 +1,27 @@
+entity: StockItem
+key: InventoryID
+records:
+- InventoryID: RAW-ECH-EXT4
+  UsrQMSInspectionRequired: true
+  UsrQMSInspectionPlanID: PLAN-ECH-EXT4
+  UsrMinShelfLifeDays: 180
+- InventoryID: RAW-ELD-EXT10
+  UsrQMSInspectionRequired: true
+  UsrQMSInspectionPlanID: PLAN-ELD-EXT10
+  UsrMinShelfLifeDays: 180
+- InventoryID: RAW-ASH-EXT5
+  UsrQMSInspectionRequired: true
+  UsrQMSInspectionPlanID: PLAN-ASH-EXT5
+  UsrMinShelfLifeDays: 180
+- InventoryID: RAW-COQ10-99
+  UsrQMSInspectionRequired: true
+  UsrQMSInspectionPlanID: PLAN-COQ10-99
+  UsrMinShelfLifeDays: 365
+- InventoryID: RAW-OMEGA3-70
+  UsrQMSInspectionRequired: true
+  UsrQMSInspectionPlanID: PLAN-OMEGA3-70
+  UsrMinShelfLifeDays: 270
+- InventoryID: RAW-ASTA-10
+  UsrQMSInspectionRequired: true
+  UsrQMSInspectionPlanID: PLAN-ASTA-10
+  UsrMinShelfLifeDays: 270

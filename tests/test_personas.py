@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 USERS = ROOT / "config/master/91-users.yaml"
 ROLES = ROOT / "config/master/90-roles.yaml"
+ROLE_USERS = ROOT / "config/master/92-role-users.yaml"
 README = ROOT / "README.md"
 
 PERSON_USERNAMES = ("etremblay", "mvance", "dsingh", "sarchambault")
@@ -79,12 +80,21 @@ class TestV3ErpRolesStayBundled(unittest.TestCase):
     def test_each_login_keeps_erp_role_set(self):
         by_name = users_by_username()
         for username, expected in JOB_USERS.items():
-            got = [
-                r["Rolename"]
-                for r in by_name[username]["Roles"]
-                if r.get("Selected")
-            ]
+            got = [r["Rolename"] for r in by_name[username]["Roles"]]
             self.assertEqual(got, expected["roles"])
+
+    def test_user_roles_omit_selected(self):
+        for user in load_records(USERS):
+            for row in user["Roles"]:
+                self.assertNotIn("Selected", row)
+
+    def test_role_users_yaml_matches_user_roles(self):
+        by_role: dict[str, list[str]] = {}
+        for user in load_records(USERS):
+            for row in user["Roles"]:
+                by_role.setdefault(row["Rolename"], []).append(user["Username"])
+        live = {r["Rolename"]: [u["Username"] for u in r["Users"]] for r in load_records(ROLE_USERS)}
+        self.assertEqual(live, by_role)
 
 
 class TestV5EmailFollowsUsername(unittest.TestCase):
@@ -143,7 +153,7 @@ class TestV4LlmAgentQmUser(unittest.TestCase):
         self.assertEqual(user["FirstName"], "LLM")
         self.assertEqual(user["LastName"], "Agent")
         self.assertEqual(user["Email"], "llm-agent@cannordic.ca")
-        roles = [r["Rolename"] for r in user["Roles"] if r.get("Selected")]
+        roles = [r["Rolename"] for r in user["Roles"]]
         self.assertEqual(roles, ["LLM Agent"])
         self.assertNotEqual(user["Username"], "LLM Agent")
 
