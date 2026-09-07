@@ -205,6 +205,7 @@ class TestV12PinnedLab5Qms(unittest.TestCase):
         for key in required:
             self.assertIn(key, text)
         self.assertIn("kborovik/acu-custom-qms", text)
+        self.assertIn("tag=v0.3.0", text)
         self.assertIn("Lab5_QMS_Customization.zip", text)
         self.assertIn("QMS/22.200.001", text)
         sha = next(
