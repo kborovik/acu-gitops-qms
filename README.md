@@ -16,19 +16,23 @@ Customer. `ACCOUNT` and `INSITE` stay 10.
 
 **Start from a brand-new empty tenant.** Do not apply onto a half-configured company.
 
-Republish AcuBootstrap (`acu bootstrap`, packaged Bootstrap 1.10.0) so
+`acu tenant create` publishes AcuBootstrap so
 Company maps CS101500 `DecPlQty` (this seed sets 3 for milligram-scale KG
 kit BOMs), SegmentedKey maps `Length` to CS202000 `Detail`, and Role
-`AssignUser` persists `UsersInRoles`.
+`AssignUser` persists `UsersInRoles`. Do not use `acu check` (cold-lifecycle
+subcommand; going away).
 
 ## Rebuild order
+
+One shot: `gmake rebuild`. Steps:
 
 ```sh
 # 1. Credentials in .env (ACU_PASSWORD, ACU_TENANT, ACU_BASE_URL, ACU_API_VERSION)
 acu config check
 
-# 2. Publish Bootstrap (features + contract from package)
-acu bootstrap
+# 2. Recreate empty tenant (create = first-login + AcuBootstrap)
+acu tenant delete --login CNBN --yes
+acu tenant create --login CNBN
 
 # 3. Seed config umbrella (bootstrap → baseline → setup → master)
 acu apply
@@ -36,13 +40,18 @@ acu apply
 # 4. Lifecycle scenarios (once capital → buy → build → sell)
 acu run
 
-# 5. After Lab5.QMS is published: inspection plans + UsrQMS* + Quality Manager users
+# 5. Publish pinned Lab5.QMS (sibling checkout at pin tag; this repo does not compile)
+gmake publish
+# pin: customization/Lab5.QMS.pin → GitHub release kborovik/acu-custom-qms
+# override checkout: gmake publish QMS_SRC=/path/to/acu-custom-qms
+
+# 6. Post-publish: inspection plans + UsrQMS* + Quality Manager users
 acu apply config/qms/
 
-# 6. Prove no drift (SEED_DIRS only; config/qms/ is post-publish)
+# 7. Prove no drift (SEED_DIRS only; config/qms/ is post-publish)
 acu diff
 
-# 7. Capture derived-state observations (EndingBalance trial-balance)
+# 8. Capture derived-state observations (EndingBalance trial-balance)
 acu state
 # warm gate: once-capital only — additive buy/sell moves numeric observations
 acu run scenario/10-seed-capital.yaml && acu state --assert-unchanged
@@ -55,7 +64,14 @@ Bare `acu apply` / `acu diff` also prefer `config/` when those trees exist.
 `acu extract` hard-cuts emit to `config/{bootstrap,baseline,setup,master}/` (never root SEED_DIRS).
 `config/qms/` is not a SEED_DIR — apply it only after Lab5.QMS is published.
 
-InspectionPlan GET works on `QMS/22.200.001`. PUT currently 500s (`QMSInspectionPlan` synonym schema cache) — seed plans via SQL or the QM.20.10.00 screen until that PUT is fixed in Lab5.QMS. Default `StockItem` does not map `UsrQMS*` fields; set those on the Stock Items form (or SQL) after publish.
+Lab5.QMS is not compiled here. `customization/Lab5.QMS.pin` names the GitHub
+release zip (`tag` + `sha256`). `gmake publish` runs `lab5-qms deploy` from
+`QMS_SRC` (default `../acu-custom-qms`) only when that checkout's version
+matches the pin. `gmake fetch` downloads the release asset into `.cache/`
+and checks the digest. Bump the pin when `acu-custom-qms` ships a new
+release — that is how a tenant rebuild stays on the same customization.
+
+InspectionPlan GET works on `QMS/22.200.001`. PUT currently 500s (`QMSInspectionPlan` synonym schema cache) — seed plans via SQL or the QM.20.10.00 screen until that PUT is fixed in Lab5.QMS. Default `StockItem` ignores `UsrQMS*` on PUT (fields are not on the Default contract); set them with SQL after publish. `acu apply config/qms/20-stock-item-qms.yaml` is a no-op until that mapping exists. `config/qms/30-qm-role-users.yaml` applies.
 
 ## Company
 
@@ -94,7 +110,8 @@ ImmunoShield `0.012` + `0.009` + `0.006` KG; CardioPure `0.060` + `0.006` + `0.0
 | `VITALPLUS` | customer |
 | `HEARTLAB` | customer |
 | `WELLCAN` | customer |
-| `LOTRAW` | lot/serial class (When Received, user-enterable, expiry) |
+| `LOTRAW` | lot/serial class for raw (When Received, user-enterable, expiry) |
+| `NOTRACK` | lot/serial class for kits (Not Tracked; required while LotSerialTracking is on) |
 | `QORD` / `QNCR` | numbering (inspection orders / NCR) |
 
 ## Layout
@@ -102,6 +119,8 @@ ImmunoShield `0.012` + `0.009` + `0.006` KG; CardioPure `0.060` + `0.006` + `0.0
 | Path | Role |
 |------|------|
 | `.env` | Secrets + REST where (`ACU_BASE_URL`) + Default pin (`ACU_API_VERSION`) |
+| `customization/Lab5.QMS.pin` | Pinned Lab5.QMS GitHub release (tag + sha256). Not the zip |
+| `Makefile` | `gmake rebuild` / `publish` / `qms` — never `acu check` |
 | `config/bootstrap/` | Company identity, features, credit terms, segmented keys (Bootstrap contract is package SoT — never scaffolded) |
 | `config/baseline/` | GL foundation (COA, ledger, subaccounts, UOMs, company packaging `91-company-packaging`) |
 | `config/setup/` | Financial year, master calendar, open periods |

@@ -12,10 +12,12 @@ FEATURES = ROOT / "config/bootstrap/features.yaml"
 NUMBERING = ROOT / "config/master/05-numbering-sequences.yaml"
 LOTS = ROOT / "config/master/55-lot-serial-classes.yaml"
 PARTS = ROOT / "config/master/80-stock-items-parts.yaml"
+KITS = ROOT / "config/master/82-stock-items-kits.yaml"
 PLANS = ROOT / "config/qms/10-inspection-plans.yaml"
 ITEM_QMS = ROOT / "config/qms/20-stock-item-qms.yaml"
 QM_ROLE_USERS = ROOT / "config/qms/30-qm-role-users.yaml"
 BUY = ROOT / "scenario/20-buy.yaml"
+BUILD = ROOT / "scenario/30-build.yaml"
 README = ROOT / "README.md"
 
 RAW_ITEMS = (
@@ -54,9 +56,9 @@ class TestV7RawLotTracked(unittest.TestCase):
 
     def test_lot_raw_class(self):
         recs = load_records(LOTS)
-        self.assertEqual(len(recs), 1)
-        row = recs[0]
-        self.assertEqual(row["ClassID"], "LOTRAW")
+        by_id = {r["ClassID"]: r for r in recs}
+        self.assertEqual(set(by_id), {"LOTRAW", "NOTRACK"})
+        row = by_id["LOTRAW"]
         self.assertEqual(row["TrackingMethod"], "Track Lot Numbers")
         self.assertEqual(row["AssignmentMethod"], "When Received")
         self.assertEqual(row["IssueMethod"], "User-Enterable")
@@ -64,6 +66,14 @@ class TestV7RawLotTracked(unittest.TestCase):
         segs = row["Segments"]
         self.assertEqual(len(segs), 1)
         self.assertEqual(segs[0]["Type"], "Auto-Incremental Value")
+        self.assertEqual(by_id["NOTRACK"]["TrackingMethod"], "Not Tracked")
+
+    def test_kits_use_notrack(self):
+        recs = load_records(KITS)
+        self.assertGreaterEqual(len(recs), 1)
+        for row in recs:
+            with self.subTest(item=row["InventoryID"]):
+                self.assertEqual(row["LotSerialClass"], "NOTRACK")
 
     def test_parts_use_lot_raw(self):
         by_id = {r["InventoryID"]: r for r in load_records(PARTS)}
@@ -77,6 +87,16 @@ class TestV7RawLotTracked(unittest.TestCase):
         text = BUY.read_text()
         self.assertIn("LotSerialNbr:", text)
         self.assertIn("ExpirationDate:", text)
+        for item_id in RAW_ITEMS:
+            self.assertIn(item_id, text)
+
+    def test_build_allocates_raw_lots(self):
+        text = BUILD.read_text()
+        self.assertIn("StockComponents:", text)
+        self.assertIn("Allocations:", text)
+        self.assertIn("expand: [StockComponents]", text)
+        self.assertIn("LotSerialNbr: NB-ECH-25001", text)
+        self.assertIn("LotSerialNbr: NM-OM3-25001", text)
         for item_id in RAW_ITEMS:
             self.assertIn(item_id, text)
 
@@ -133,6 +153,10 @@ class TestV11QmRoleUsers(unittest.TestCase):
         self.assertEqual(names, ["qa-director", "llm-agent"])
 
 
+PIN = ROOT / "customization/Lab5.QMS.pin"
+MAKEFILE = ROOT / "Makefile"
+
+
 class TestReadmeQmsLayout(unittest.TestCase):
     def test_readme_documents_qms_apply_and_drops_matrix(self):
         text = README.read_text()
@@ -141,6 +165,51 @@ class TestReadmeQmsLayout(unittest.TestCase):
         self.assertIn("acu apply config/qms/", text)
         self.assertIn("LOTRAW", text)
         self.assertIn("QORD", text)
+        self.assertIn("gmake publish", text)
+        self.assertIn("customization/Lab5.QMS.pin", text)
+        self.assertIn("acu tenant delete", text)
+        self.assertIn("acu tenant create", text)
+
+    def test_readme_does_not_run_acu_check(self):
+        in_fence = False
+        for line in README.read_text().splitlines():
+            if line.startswith("```"):
+                in_fence = not in_fence
+                continue
+            if not in_fence:
+                continue
+            stripped = line.strip()
+            if stripped.startswith("#"):
+                continue
+            self.assertFalse(
+                stripped == "acu check" or stripped.startswith("acu check "),
+                f"rebuild fence must not invoke acu check: {stripped}",
+            )
+
+
+class TestV12PinnedLab5Qms(unittest.TestCase):
+    def test_pin_names_release_and_digest(self):
+        text = PIN.read_text()
+        required = ("repo=", "tag=", "asset=", "sha256=", "package=", "endpoint=")
+        for key in required:
+            self.assertIn(key, text)
+        self.assertIn("kborovik/acu-custom-qms", text)
+        self.assertIn("Lab5_QMS_Customization.zip", text)
+        self.assertIn("QMS/22.200.001", text)
+        sha = next(
+            line.split("=", 1)[1].strip()
+            for line in text.splitlines()
+            if line.startswith("sha256=")
+        )
+        self.assertEqual(len(sha), 64)
+        self.assertTrue(all(c in "0123456789abcdef" for c in sha))
+
+    def test_makefile_rebuild_skips_acu_check(self):
+        text = MAKEFILE.read_text()
+        self.assertIn("lab5-qms deploy", text)
+        self.assertIn("tenant delete", text)
+        self.assertIn("tenant create", text)
+        self.assertNotRegex(text, r"(?m)^\s*acu check\b")
 
 
 if __name__ == "__main__":

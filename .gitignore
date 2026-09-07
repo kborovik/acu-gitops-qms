@@ -3,5 +3,6 @@ findings/
 inventory/
 schemas/
 state/
+.cache/
 __pycache__/
 *.pyc

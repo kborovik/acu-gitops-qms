@@ -11,9 +11,11 @@ Job-function logins on CanNordic QMS seed; humans type function not person; LLM 
 - Email local-part = Username; domain `@cannordic.ca`
 - Companion customization `acu-custom-qms`; ingestion `acu-google-qms`; CLI defects → `acumatica-cli` not this repo
 - Stock rows in `config/master/90-roles.yaml` stay; add custom Rolename `LLM Agent` only
-- This repo = seed YAML; not implement QMS screens or ingestion engine
+- This repo = seed YAML; not implement QMS screens or ingestion engine; not compile `Lab5.QMS.dll`
+- Rebuild = `tenant delete` + `tenant create` + `apply` + `run` + pinned Lab5.QMS publish + `apply config/qms/`; never `acu check`
 - Quality Manager role + QM RolesInGraph stay in `acu-custom-qms` post-publish; this repo attaches users after that role exists
 - `config/qms/` is post-publish only (`QMS/22.200.001` + UsrQMS* on StockItem); not SEED_DIRS; virgin `acu apply` must succeed before Lab5.QMS
+- Lab5.QMS zip pin in `customization/Lab5.QMS.pin` (GitHub release tag + sha256); bump pin on Lab5.QMS release so rebuilds stay on that package
 - User.Roles omit `Selected` (acu ≥ 0.29 / Bootstrap 1.10.0 AssignUser); persist membership in `92-role-users.yaml`
 - Company identity in `config/bootstrap/company.yaml`; DecPlQty/WeightUOM/VolumeUOM in `config/baseline/91-company-packaging.yaml` after UOMs
 
@@ -28,9 +30,11 @@ Job-function logins on CanNordic QMS seed; humans type function not person; LLM 
 - yaml: `config/qms/20-stock-item-qms.yaml` → StockItem UsrQMSInspectionRequired + PlanID + UsrMinShelfLifeDays
 - yaml: `config/qms/30-qm-role-users.yaml` → Quality Manager ← qa-director, llm-agent
 - yaml: `scenario/20-buy.yaml` → receipt lines Location + LotSerialNbr + ExpirationDate
+- yaml: `scenario/30-build.yaml` → KitAssembly StockComponents LocationID + Allocations LotSerialNbr (LOTRAW raw)
 - yaml: `config/baseline/91-company-packaging.yaml` → Company DecPlQty 3 WeightUOM KG VolumeUOM LITER
-- doc: `README.md` Personas table → Username + person + ERP roles; rebuild order `.env` + post-publish `acu apply config/qms/`
-- cmd: `acu apply` seeds SEED_DIRS; `acu apply config/qms/` after Lab5.QMS publish
+- doc: `README.md` Personas table → Username + person + ERP roles; rebuild order tenant delete/create + `gmake publish` + post-publish `acu apply config/qms/`; ! `acu check`
+- cmd: `acu apply` seeds SEED_DIRS; `acu tenant delete` + `acu tenant create` recreate; `acu apply config/qms/` after Lab5.QMS publish; `gmake rebuild` wraps the chain; ! `acu check`
+- pin: `customization/Lab5.QMS.pin` → repo tag asset sha256 package endpoint; `gmake publish` deploys `QMS_SRC` at pin version
 - map: `etremblay`→`qa-director`, `mvance`→`vp-supply-chain`, `dsingh`→`receiving-supervisor`, `sarchambault`→`erp-architect`; add `llm-agent`
 
 ## §V INVARIANTS
@@ -40,11 +44,12 @@ V3: erp-roles-stay-bundled — each job-function login keeps current ERP role se
 V4: llm-agent-qm — Rolename `LLM Agent` + user `llm-agent` works QM documents (inspection orders, CoA files, NCR); not a human persona; FirstName `LLM` LastName `Agent`; post-publish also Quality Manager
 V5: email-follows-username — Email = `{Username}@cannordic.ca`
 V6: personas-sync — README Personas table Username matches `91-users.yaml`
-V7: raw-lot-tracked — features.yaml includes `LotSerialTracking`; PARTS items LotSerialClass `LOTRAW` (Track Lot Numbers, When Received, User-Enterable, TrackExpirationDate, Auto-Incremental segment); ClassID mask alphanumeric no hyphen; buy receipts carry LotSerialNbr + ExpirationDate + Location
+V7: raw-lot-tracked — features.yaml includes `LotSerialTracking`; PARTS items LotSerialClass `LOTRAW` (Track Lot Numbers, When Received, User-Enterable, TrackExpirationDate, Auto-Incremental segment); KITS items LotSerialClass `NOTRACK` (Not Tracked); ClassID mask alphanumeric no hyphen; buy receipts carry LotSerialNbr + ExpirationDate + Location; kit assembly StockComponents Allocations carry LocationID + LotSerialNbr
 V8: qms-numbering — NumberingSequence `QORD` `QNCR` in `05-numbering-sequences.yaml`
 V9: qms-plans-after-publish — `config/qms/10-inspection-plans.yaml` one Active InspectionPlan per raw InventoryID; endpoint `QMS/22.200.001`; not SEED_DIRS
 V10: qms-item-flags — `config/qms/20-stock-item-qms.yaml` sets UsrQMSInspectionRequired + matching PlanID + UsrMinShelfLifeDays on every PARTS item; 80-stock-items-parts.yaml omits UsrQMS*
 V11: qm-users-after-role — `config/qms/30-qm-role-users.yaml` attaches Quality Manager to qa-director and llm-agent (role seeded by Lab5.QMS)
+V12: pinned-lab5-qms — rebuild publishes Lab5.QMS from `customization/Lab5.QMS.pin` (GitHub release tag + sha256) via `QMS_SRC` `lab5-qms deploy`; this repo ! compile DLL ! vendor zip ! `acu check`
 
 ## §T TASKS
 id|status|task|cites
@@ -60,6 +65,9 @@ T9|x|add LotSerialClass LOTRAW; set on PARTS stock items|V7
 T10|x|buy receipts: Location MAIN + LotSerialNbr + ExpirationDate per raw line|V7
 T11|x|add config/qms/ InspectionPlan per raw + StockItem UsrQMS* + Quality Manager users|V9,V10,V11
 T12|x|README: .env not matrix.yaml; 92-role-users; LOTRAW; post-publish acu apply config/qms/|V6,V7,V9
+T13|x|pin Lab5.QMS GitHub release; Makefile rebuild=delete/create/apply/run/publish/qms/diff/state; README drop acu check|V12
+T14|x|KITS StockItem LotSerialClass NOTRACK (LotSerialTracking requires a class)|V7
+T15|x|kit assembly StockComponents Allocations Location + LotSerialNbr from buy lots|V7
 
 ## §B BUGS
 id|date|cause|fix

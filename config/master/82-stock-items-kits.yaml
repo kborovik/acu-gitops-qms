@@ -6,6 +6,7 @@ records:
   ItemClass: KITS
   ItemStatus: Active
   DefaultWarehouseID: WH-MISS-01
+  LotSerialClass: NOTRACK
   IsAKit: true
   DefaultPrice: 24.00
 - InventoryID: FG-CARDIO-OMEGA-COQ10-60SG
@@ -13,5 +14,6 @@ records:
   ItemClass: KITS
   ItemStatus: Active
   DefaultWarehouseID: WH-MISS-01
+  LotSerialClass: NOTRACK
   IsAKit: true
   DefaultPrice: 36.00
