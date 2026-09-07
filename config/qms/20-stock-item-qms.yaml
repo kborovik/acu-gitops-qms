@@ -1,5 +1,6 @@
 entity: StockItem
 key: InventoryID
+endpoint: QMS/22.200.001
 records:
 - InventoryID: RAW-ECH-EXT4
   UsrQMSInspectionRequired: true

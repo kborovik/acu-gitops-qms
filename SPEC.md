@@ -68,7 +68,7 @@ T12|x|README: .env not matrix.yaml; 92-role-users; LOTRAW; post-publish acu appl
 T13|x|pin Lab5.QMS GitHub release; Makefile rebuild=delete/create/apply/run/publish/qms/diff/state; README drop acu check|V12
 T14|x|KITS StockItem LotSerialClass NOTRACK (LotSerialTracking requires a class)|V7
 T15|x|kit assembly StockComponents Allocations Location + LotSerialNbr from buy lots|V7
-T16|.|add `endpoint: QMS/22.200.001` on `config/qms/20-stock-item-qms.yaml`|V10
+T16|x|add `endpoint: QMS/22.200.001` on `config/qms/20-stock-item-qms.yaml`|V10
 T17|.|`acu apply config/qms/20-stock-item-qms.yaml` persists UsrQMS* on all 6 PARTS (no SQL)|V10
 T18|.|drop README no-op claim; tests/test_qms.py require stock-item QMS endpoint|V10
 
