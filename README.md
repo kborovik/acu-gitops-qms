@@ -146,3 +146,69 @@ Monoscenario `buy-sell` is not part of this package.
 | `receiving-supervisor` | Devon Singh, Receiving Supervisor | IN Receiver, PO Clerk |
 | `erp-architect` | Sophie Archambault, ERP Architect | Administrator |
 | `llm-agent` | LLM Agent | LLM Agent (+ Quality Manager after `config/qms/`) |
+
+## Quality inspection workflow
+
+From [`acu-custom-qms`](https://github.com/kborovik/acu-custom-qms). Actors:
+**Receiving Dock**, **Acumatica ERP**, **Quality Manager**, **GCP AI Agent**.
+Same path as graph actions and `QMS/22.200.001` REST. QC Hold becomes Released
+only as role **Quality Manager** or as the ingestion service account
+(`qms-ingestion`). A Quality Manager can also **Evaluate** and **Release Lot
+Decision** from Inspection Orders (`QM.30.10.00`).
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#dafbe1', 'primaryTextColor': '#1f2328', 'primaryBorderColor': '#1f883d', 'secondaryColor': '#ddf4ff', 'tertiaryColor': '#fff6d6', 'lineColor': '#0969da', 'actorBkg': '#dafbe1', 'actorBorder': '#1f883d', 'actorTextColor': '#1f2328', 'signalColor': '#0969da', 'signalTextColor': '#1f2328', 'labelBoxBkgColor': '#ddf4ff', 'labelBoxBorderColor': '#0969da', 'labelTextColor': '#0550ae', 'loopTextColor': '#1f2328', 'noteBkgColor': '#f6f8fa', 'noteTextColor': '#1f2328', 'noteBorderColor': '#d1d9e0', 'activationBkgColor': '#ddf4ff', 'activationBorderColor': '#0969da', 'sequenceNumberColor': '#ffffff'}, 'themeCSS': 'g[data-id="ERP"] rect{fill:#ddf4ff!important;stroke:#0969da!important}g[data-id="QMS"] rect{fill:#dafbe1!important;stroke:#1f883d!important}g[data-id="Agent"] rect{fill:#ffebe9!important;stroke:#cf222e!important}'}}%%
+sequenceDiagram
+    %% lab5.ca: green #1f883d, blue #0969da, yellow #f9c513, red #cf222e
+    autonumber
+    actor Dock as Receiving Dock
+    participant ERP as Acumatica ERP
+    participant QMS as Quality Manager
+    participant Agent as GCP AI Agent
+
+    Dock->>ERP: Release PO Receipt
+    ERP->>QMS: POReceiptEntry.Release
+
+    alt Item requires quality inspection
+        rect rgb(218, 251, 225)
+            QMS->>ERP: Lot status QC Hold
+            QMS->>QMS: Insert draft Inspection Order (plan, lot, vendor, receipt)
+        end
+
+        rect rgb(255, 246, 214)
+            Dock->>Agent: CoA PDF documents
+            Agent->>QMS: GET InspectionPlan with Tests
+            QMS-->>Agent: Tests, methods, min/max, criticality
+            Agent->>QMS: PUT InspectionOrder (results + lab certificate)
+            Agent->>ERP: Attach CoA PDF + JSON on order NoteID
+        end
+
+        Agent->>QMS: EvaluateResults
+        QMS->>QMS: Numeric bounds, text tokens, shelf life
+
+        alt All required tests pass
+            rect rgb(218, 251, 225)
+                QMS-->>Agent: OverallEvaluation Pass
+                Agent->>QMS: ReleaseLotDecision
+                QMS->>ERP: Lot status Released
+                QMS->>QMS: Inspection Order Completed
+            end
+        else Required fail or missing
+            rect rgb(255, 235, 233)
+                QMS-->>Agent: OverallEvaluation Fail
+                Agent->>QMS: ReleaseLotDecision
+                QMS->>ERP: Lot status Quarantine
+                QMS->>QMS: Insert Non-Conformance
+            end
+        end
+    else Inspection not required
+        rect rgb(221, 244, 255)
+            ERP-->>Dock: Lot allocatable
+        end
+    end
+```
+
+Lot status on inspected receipts is one of **QC Hold**, **Released**, or
+**Quarantine**. The receipt number, lot serial, and inspection order stay
+linked for the life of the lot. The attached CoA PDF and parsed JSON stay
+on the order as the audit record.
