@@ -27,7 +27,7 @@ Job-function logins on CanNordic QMS seed; humans type function not person; LLM 
 - yaml: `config/master/55-lot-serial-classes.yaml` → LotSerialClass `LOTRAW`
 - yaml: `config/master/80-stock-items-parts.yaml` → PARTS LotSerialClass `LOTRAW`; no UsrQMS*
 - yaml: `config/qms/10-inspection-plans.yaml` → InspectionPlan endpoint `QMS/22.200.001`
-- yaml: `config/qms/20-stock-item-qms.yaml` → StockItem UsrQMSInspectionRequired + PlanID + UsrMinShelfLifeDays
+- yaml: `config/qms/20-stock-item-qms.yaml` → StockItem endpoint `QMS/22.200.001`; UsrQMSInspectionRequired + PlanID + UsrMinShelfLifeDays
 - yaml: `config/qms/30-qm-role-users.yaml` → Quality Manager ← qa-director, llm-agent
 - yaml: `scenario/20-buy.yaml` → receipt lines Location + LotSerialNbr + ExpirationDate
 - yaml: `scenario/30-build.yaml` → KitAssembly StockComponents LocationID + Allocations LotSerialNbr (LOTRAW raw)
@@ -47,7 +47,7 @@ V6: personas-sync — README Personas table Username matches `91-users.yaml`
 V7: raw-lot-tracked — features.yaml includes `LotSerialTracking`; PARTS items LotSerialClass `LOTRAW` (Track Lot Numbers, When Received, User-Enterable, TrackExpirationDate, Auto-Incremental segment); KITS items LotSerialClass `NOTRACK` (Not Tracked); ClassID mask alphanumeric no hyphen; buy receipts carry LotSerialNbr + ExpirationDate + Location; kit assembly StockComponents Allocations carry LocationID + LotSerialNbr
 V8: qms-numbering — NumberingSequence `QORD` `QNCR` in `05-numbering-sequences.yaml`
 V9: qms-plans-after-publish — `config/qms/10-inspection-plans.yaml` one Active InspectionPlan per raw InventoryID; endpoint `QMS/22.200.001`; not SEED_DIRS
-V10: qms-item-flags — `config/qms/20-stock-item-qms.yaml` sets UsrQMSInspectionRequired + matching PlanID + UsrMinShelfLifeDays on every PARTS item; 80-stock-items-parts.yaml omits UsrQMS*
+V10: qms-item-flags — `config/qms/20-stock-item-qms.yaml` endpoint `QMS/22.200.001`; sets UsrQMSInspectionRequired + matching PlanID + UsrMinShelfLifeDays on every PARTS item; 80-stock-items-parts.yaml omits UsrQMS* (closes §B.1)
 V11: qm-users-after-role — `config/qms/30-qm-role-users.yaml` attaches Quality Manager to qa-director and llm-agent (role seeded by Lab5.QMS)
 V12: pinned-lab5-qms — rebuild publishes Lab5.QMS from `customization/Lab5.QMS.pin` (GitHub release tag + sha256) via `QMS_SRC` `lab5-qms deploy`; this repo ! compile DLL ! vendor zip ! `acu check`
 
@@ -68,6 +68,10 @@ T12|x|README: .env not matrix.yaml; 92-role-users; LOTRAW; post-publish acu appl
 T13|x|pin Lab5.QMS GitHub release; Makefile rebuild=delete/create/apply/run/publish/qms/diff/state; README drop acu check|V12
 T14|x|KITS StockItem LotSerialClass NOTRACK (LotSerialTracking requires a class)|V7
 T15|x|kit assembly StockComponents Allocations Location + LotSerialNbr from buy lots|V7
+T16|.|add `endpoint: QMS/22.200.001` on `config/qms/20-stock-item-qms.yaml`|V10
+T17|.|`acu apply config/qms/20-stock-item-qms.yaml` persists UsrQMS* on all 6 PARTS (no SQL)|V10
+T18|.|drop README no-op claim; tests/test_qms.py require stock-item QMS endpoint|V10
 
 ## §B BUGS
 id|date|cause|fix
+B1|2026-09-07|20-stock-item-qms.yaml missing endpoint → Default StockItem ignores UsrQMS*|V10
