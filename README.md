@@ -71,7 +71,7 @@ matches the pin. `gmake fetch` downloads the release asset into `.cache/`
 and checks the digest. Bump the pin when `acu-custom-qms` ships a new
 release — that is how a tenant rebuild stays on the same customization.
 
-InspectionPlan GET works on `QMS/22.200.001`. PUT currently 500s (`QMSInspectionPlan` synonym schema cache) — seed plans via SQL or the QM.20.10.00 screen until that PUT is fixed in Lab5.QMS. Default `StockItem` ignores `UsrQMS*` on PUT (fields are not on the Default contract); set them with SQL after publish. `acu apply config/qms/20-stock-item-qms.yaml` is a no-op until that mapping exists. `config/qms/30-qm-role-users.yaml` applies.
+InspectionPlan GET works on `QMS/22.200.001`. PUT currently 500s (`QMSInspectionPlan` synonym schema cache) — seed plans via SQL or the QM.20.10.00 screen until that PUT is fixed in Lab5.QMS. `config/qms/20-stock-item-qms.yaml` sets `endpoint: QMS/22.200.001`. `acu apply` of that file persists `UsrQMSInspectionRequired`, `UsrQMSInspectionPlanID`, and `UsrMinShelfLifeDays`. `config/qms/30-qm-role-users.yaml` applies.
 
 ## Company
 
