@@ -2,7 +2,8 @@
 
 Virgin-tenant Acumatica seed for **CanNordic BioNutra Inc.** (AcctCD `CNBN`), a
 Canadian CDMO and ingredient importer (NHPs, functional foods). Finance +
-inventory/distribution + kit assembly. QMS tenant for
+inventory/distribution. Kit specs stay in master data; `acu run` does not
+assemble or sell them. QMS tenant for
 [`gcp-acu-coa`](https://github.com/kborovik/gcp-acu-coa). Single full seed — no `--flavor`.
 
 Sourced from the company profile and master data in
@@ -37,7 +38,7 @@ acu tenant create --login CNBN
 # 3. Seed config umbrella (bootstrap → baseline → setup → master)
 acu apply
 
-# 4. Lifecycle scenarios (once capital → buy → build → sell)
+# 4. Lifecycle scenarios (once capital → buy)
 acu run
 
 # 5. Publish pinned Lab5.QMS (sibling checkout at pin tag; this repo does not compile)
@@ -53,7 +54,7 @@ acu diff
 
 # 8. Capture derived-state observations (EndingBalance trial-balance)
 acu state
-# warm gate: once-capital only — additive buy/sell moves numeric observations
+# warm gate: once-capital only — additive buy moves numeric observations
 acu run scenario/10-seed-capital.yaml && acu state --assert-unchanged
 
 # Optional: re-seed from live (inverse of apply; always under config/)
@@ -84,7 +85,9 @@ release — that is how a tenant rebuild stays on the same customization.
 | HQ | 2450 Meadowpine Blvd, Mississauga, ON L5N 6S2 |
 | Site licence | Health Canada #302194 (Mfg / Pack / Label / Import) |
 
-Warehouse: `WH-MISS-01` / `MAIN`. Buy / build / sell run there.
+Warehouse: `WH-MISS-01`. Locations: `MAIN` (general), `QCHOLD` (receipts; no
+sales/assembly), `READY` (released stock). Receiving default `QCHOLD`;
+shipping default `READY`. Buy receipts land in `QCHOLD`.
 
 Item class IDs stay `PARTS` / `KITS` so `acu extract` filter-split still matches.
 
@@ -127,9 +130,7 @@ ImmunoShield `0.012` + `0.009` + `0.006` KG; CardioPure `0.060` + `0.006` + `0.0
 | `config/master/` | Numbering (`05-numbering-sequences` includes `QORD`/`QNCR`) before module prefs; `LOTRAW`; inventory, warehouse, items, vendors, customers; roles/users (`90-roles` then `91-users` then `92-role-users`) |
 | `config/qms/` | Post-publish Lab5.QMS: inspection plans, StockItem UsrQMS*, Quality Manager user attach. Not SEED_DIRS |
 | `scenario/10-seed-capital.yaml` | Once-class owner capital JE (skip-if-present when present); Period = `${current_period}` |
-| `scenario/20-buy.yaml` | Additive ingredient PO, then receipt (lot + expiry), then bill, then AP pay (four suppliers, kit BOM only) |
-| `scenario/30-build.yaml` | Additive kit assembly (ImmunoShield + CardioPure) |
-| `scenario/40-sell.yaml` | Additive SO, then ship, then invoice, then AR pay (three brand customers) |
+| `scenario/20-buy.yaml` | Additive ingredient PO, then receipt (lot + expiry at `QCHOLD`), then bill, then AP pay (four suppliers) |
 | `config/views/10-trial-balance.yaml` | Observer view (EndingBalance inquire; Period pinned literal; not SEED_DIRS) |
 | `state/` | Written by `acu state` (derived-state observations) |
 

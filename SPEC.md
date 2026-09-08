@@ -29,8 +29,9 @@ Job-function logins on CanNordic QMS seed; humans type function not person; LLM 
 - yaml: `config/qms/10-inspection-plans.yaml` → InspectionPlan endpoint `QMS/22.200.001`
 - yaml: `config/qms/20-stock-item-qms.yaml` → StockItem endpoint `QMS/22.200.001`; UsrQMSInspectionRequired + PlanID + UsrMinShelfLifeDays
 - yaml: `config/qms/30-qm-role-users.yaml` → Quality Manager ← qa-director, llm-agent
-- yaml: `scenario/20-buy.yaml` → receipt lines Location + LotSerialNbr + ExpirationDate
-- yaml: `scenario/30-build.yaml` → KitAssembly StockComponents LocationID + Allocations LotSerialNbr (LOTRAW raw)
+- yaml: `scenario/20-buy.yaml` → receipt lines Location `QCHOLD` + LotSerialNbr + ExpirationDate
+- yaml: `config/master/51-warehouse-locations.yaml` → WH-MISS-01 Locations `MAIN` `QCHOLD` `READY`
+- yaml: `config/master/52-warehouse-defaults.yaml` → ReceivingLocationID `QCHOLD` ShippingLocationID `READY` RMALocationID `QCHOLD`
 - yaml: `config/baseline/91-company-packaging.yaml` → Company DecPlQty 3 WeightUOM KG VolumeUOM LITER
 - doc: `README.md` Personas table → Username + person + ERP roles; rebuild order tenant delete/create + `gmake publish` + post-publish `acu apply config/qms/`; ! `acu check`
 - cmd: `acu apply` seeds SEED_DIRS; `acu tenant delete` + `acu tenant create` recreate; `acu apply config/qms/` after Lab5.QMS publish; `gmake rebuild` wraps the chain; ! `acu check`
@@ -44,12 +45,14 @@ V3: erp-roles-stay-bundled — each job-function login keeps current ERP role se
 V4: llm-agent-qm — Rolename `LLM Agent` + user `llm-agent` works QM documents (inspection orders, CoA files, NCR); not a human persona; FirstName `LLM` LastName `Agent`; post-publish also Quality Manager
 V5: email-follows-username — Email = `{Username}@cannordic.ca`
 V6: personas-sync — README Personas table Username matches `91-users.yaml`
-V7: raw-lot-tracked — features.yaml includes `LotSerialTracking`; PARTS items LotSerialClass `LOTRAW` (Track Lot Numbers, When Received, User-Enterable, TrackExpirationDate, Auto-Incremental segment); KITS items LotSerialClass `NOTRACK` (Not Tracked); ClassID mask alphanumeric no hyphen; buy receipts carry LotSerialNbr + ExpirationDate + Location; kit assembly StockComponents Allocations carry LocationID + LotSerialNbr
+V7: raw-lot-tracked — features.yaml includes `LotSerialTracking`; PARTS items LotSerialClass `LOTRAW` (Track Lot Numbers, When Received, User-Enterable, TrackExpirationDate, Auto-Incremental segment); KITS items LotSerialClass `NOTRACK` (Not Tracked); ClassID mask alphanumeric no hyphen; buy receipts carry LotSerialNbr + ExpirationDate + Location `QCHOLD`
 V8: qms-numbering — NumberingSequence `QORD` `QNCR` in `05-numbering-sequences.yaml`
 V9: qms-plans-after-publish — `config/qms/10-inspection-plans.yaml` one Active InspectionPlan per raw InventoryID; endpoint `QMS/22.200.001`; not SEED_DIRS
 V10: qms-item-flags — `config/qms/20-stock-item-qms.yaml` endpoint `QMS/22.200.001`; sets UsrQMSInspectionRequired + matching PlanID + UsrMinShelfLifeDays on every PARTS item; 80-stock-items-parts.yaml omits UsrQMS* (closes §B.1)
 V11: qm-users-after-role — `config/qms/30-qm-role-users.yaml` attaches Quality Manager to qa-director and llm-agent (role seeded by Lab5.QMS)
 V12: pinned-lab5-qms — rebuild publishes Lab5.QMS from `customization/Lab5.QMS.pin` (GitHub release tag + sha256) via `QMS_SRC` `lab5-qms deploy`; this repo ! compile DLL ! vendor zip ! `acu check`
+V13: qc-ready-locations — WH-MISS-01 Locations `MAIN` `QCHOLD` `READY`; `QCHOLD` ReceiptsAllowed TransfersAllowed SalesAllowed=false AssemblyAllowed=false; `READY` SalesAllowed TransfersAllowed AssemblyAllowed ReceiptsAllowed=false; ReceivingLocationID `QCHOLD`; ShippingLocationID `READY`; RMALocationID `QCHOLD`
+V14: run-is-capital-buy — `acu run` = `scenario/10-seed-capital.yaml` + `scenario/20-buy.yaml`; no `scenario/30-build.yaml`; no `scenario/40-sell.yaml`
 
 ## §T TASKS
 id|status|task|cites
@@ -71,6 +74,9 @@ T15|x|kit assembly StockComponents Allocations Location + LotSerialNbr from buy 
 T16|x|add `endpoint: QMS/22.200.001` on `config/qms/20-stock-item-qms.yaml`|V10
 T17|x|`acu apply config/qms/20-stock-item-qms.yaml` persists UsrQMS* on all 6 PARTS (no SQL)|V10
 T18|x|drop README no-op claim; tests/test_qms.py require stock-item QMS endpoint|V10
+T19|x|drop scenario/30-build.yaml + scenario/40-sell.yaml from run|V14
+T20|x|add WH-MISS-01 Locations QCHOLD READY; warehouse defaults Receiving QCHOLD Shipping READY RMA QCHOLD|V13
+T21|x|buy receipts Location QCHOLD; tests + README run=capital+buy|V7,V13,V14,I.yaml
 
 ## §B BUGS
 id|date|cause|fix

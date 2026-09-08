@@ -1,4 +1,4 @@
-"""QMS seed invariants (SPEC.md §V.7–§V.11)."""
+"""QMS seed invariants (SPEC.md §V.7–§V.14)."""
 
 from __future__ import annotations
 
@@ -17,7 +17,9 @@ PLANS = ROOT / "config/qms/10-inspection-plans.yaml"
 ITEM_QMS = ROOT / "config/qms/20-stock-item-qms.yaml"
 QM_ROLE_USERS = ROOT / "config/qms/30-qm-role-users.yaml"
 BUY = ROOT / "scenario/20-buy.yaml"
-BUILD = ROOT / "scenario/30-build.yaml"
+WH_LOCS = ROOT / "config/master/51-warehouse-locations.yaml"
+WH_DEF = ROOT / "config/master/52-warehouse-defaults.yaml"
+SCENARIO = ROOT / "scenario"
 README = ROOT / "README.md"
 
 RAW_ITEMS = (
@@ -87,21 +89,49 @@ class TestV7RawLotTracked(unittest.TestCase):
         text = BUY.read_text()
         self.assertIn("LotSerialNbr:", text)
         self.assertIn("ExpirationDate:", text)
+        self.assertIn("Location: QCHOLD", text)
+        self.assertNotIn("Location: MAIN", text)
         for item_id in RAW_ITEMS:
             self.assertIn(item_id, text)
 
-    def test_build_allocates_raw_lots(self):
-        text = BUILD.read_text()
-        self.assertIn("StockComponents:", text)
-        self.assertIn("Allocations:", text)
-        self.assertIn("expand: [StockComponents]", text)
-        self.assertIn("LotSerialNbr: NB-ECH-25001", text)
-        self.assertIn("LotSerialNbr: NM-OM3-25001", text)
-        self.assertIn("StockComponents[0].id:", text)
-        self.assertIn('id: "${immune_ech_id}"', text)
-        self.assertIn('id: "${cardio_om3_id}"', text)
-        for item_id in RAW_ITEMS:
-            self.assertIn(item_id, text)
+
+class TestV13QcReadyLocations(unittest.TestCase):
+    def test_warehouse_has_qc_hold_and_ready(self):
+        recs = load_records(WH_LOCS)
+        self.assertEqual(len(recs), 1)
+        wh = recs[0]
+        self.assertEqual(wh["WarehouseID"], "WH-MISS-01")
+        self.assertEqual(wh["ReceivingLocationID"], "QCHOLD")
+        self.assertEqual(wh["ShippingLocationID"], "READY")
+        self.assertEqual(wh["RMALocationID"], "QCHOLD")
+        by_id = {row["LocationID"]: row for row in wh["Locations"]}
+        self.assertEqual(set(by_id), {"MAIN", "QCHOLD", "READY"})
+        hold = by_id["QCHOLD"]
+        self.assertTrue(hold["ReceiptsAllowed"])
+        self.assertTrue(hold["TransfersAllowed"])
+        self.assertFalse(hold["SalesAllowed"])
+        self.assertFalse(hold["AssemblyAllowed"])
+        ready = by_id["READY"]
+        self.assertFalse(ready["ReceiptsAllowed"])
+        self.assertTrue(ready["SalesAllowed"])
+        self.assertTrue(ready["TransfersAllowed"])
+        self.assertTrue(ready["AssemblyAllowed"])
+
+    def test_warehouse_defaults_match_locations(self):
+        recs = load_records(WH_DEF)
+        self.assertEqual(len(recs), 1)
+        row = recs[0]
+        self.assertEqual(row["ReceivingLocationID"], "QCHOLD")
+        self.assertEqual(row["ShippingLocationID"], "READY")
+        self.assertEqual(row["RMALocationID"], "QCHOLD")
+
+
+class TestV14RunIsCapitalBuy(unittest.TestCase):
+    def test_run_scenarios_are_capital_and_buy(self):
+        names = sorted(p.name for p in SCENARIO.glob("*.yaml"))
+        self.assertEqual(names, ["10-seed-capital.yaml", "20-buy.yaml"])
+        self.assertFalse((SCENARIO / "30-build.yaml").exists())
+        self.assertFalse((SCENARIO / "40-sell.yaml").exists())
 
 
 class TestV8QmsNumbering(unittest.TestCase):

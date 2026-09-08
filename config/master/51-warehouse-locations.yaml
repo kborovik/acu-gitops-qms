@@ -5,14 +5,28 @@ detail_keys:
   Locations: LocationID
 records:
 - WarehouseID: WH-MISS-01
-  ReceivingLocationID: MAIN
-  ShippingLocationID: MAIN
-  RMALocationID: MAIN
+  ReceivingLocationID: QCHOLD
+  ShippingLocationID: READY
+  RMALocationID: QCHOLD
   Locations:
   - LocationID: MAIN
-    Description: Main storage and assembly
+    Description: Main storage
     Active: true
     ReceiptsAllowed: true
+    SalesAllowed: true
+    TransfersAllowed: true
+    AssemblyAllowed: true
+  - LocationID: QCHOLD
+    Description: QC Hold
+    Active: true
+    ReceiptsAllowed: true
+    SalesAllowed: false
+    TransfersAllowed: true
+    AssemblyAllowed: false
+  - LocationID: READY
+    Description: Ready to use
+    Active: true
+    ReceiptsAllowed: false
     SalesAllowed: true
     TransfersAllowed: true
     AssemblyAllowed: true

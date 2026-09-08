@@ -61,7 +61,7 @@ apply: ## Seed config/{bootstrap,baseline,setup,master}/
 	$(call header,acu apply)
 	acu apply
 
-run: ## Lifecycle scenarios (capital → buy → build → sell)
+run: ## Lifecycle scenarios (capital → buy)
 	$(call header,acu run)
 	acu run
 

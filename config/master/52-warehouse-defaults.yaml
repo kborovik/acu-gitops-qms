@@ -3,6 +3,6 @@ key: WarehouseID
 endpoint: default
 records:
 - WarehouseID: WH-MISS-01
-  ReceivingLocationID: MAIN
-  ShippingLocationID: MAIN
-  RMALocationID: MAIN
+  ReceivingLocationID: QCHOLD
+  ShippingLocationID: READY
+  RMALocationID: QCHOLD
