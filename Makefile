@@ -98,12 +98,10 @@ fetch: ## Download the pinned GitHub-release zip into .cache/ and verify sha256
 	fi
 	echo "$(CACHE)/$(QMS_ASSET)"
 
-qms: ## Post-publish QMS master (UsrQMS* + Quality Manager; plans PUT still 500)
-	$(call header,acu apply config/qms/ item flags + QM users)
+qms: ## Post-publish QMS master (inspection plans + UsrQMS* + Quality Manager)
+	$(call header,acu apply config/qms/)
+	acu apply config/qms/10-inspection-plans.yaml
 	acu apply config/qms/20-stock-item-qms.yaml config/qms/30-qm-role-users.yaml
-	$(call header,acu apply config/qms/ inspection plans)
-	acu apply config/qms/10-inspection-plans.yaml \
-		|| echo "$(yellow)InspectionPlan PUT 500 — seed via SQL or QM.20.10.00 until Lab5.QMS fixes PUT$(reset)"
 
 diff: ## Prove SEED_DIRS have no drift (config/qms/ is post-publish)
 	$(call header,acu diff)

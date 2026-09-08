@@ -132,6 +132,11 @@ class TestV9QmsPlansAfterPublish(unittest.TestCase):
 
 
 class TestV10QmsItemFlags(unittest.TestCase):
+    def test_item_qms_uses_qms_endpoint(self):
+        doc = load_mapping(ITEM_QMS)
+        self.assertEqual(doc["entity"], "StockItem")
+        self.assertEqual(doc["endpoint"], "QMS/22.200.001")
+
     def test_usr_flags_live_in_qms_tree(self):
         recs = load_records(ITEM_QMS)
         by_id = {r["InventoryID"]: r for r in recs}
@@ -170,6 +175,12 @@ class TestReadmeQmsLayout(unittest.TestCase):
         self.assertIn("acu tenant delete", text)
         self.assertIn("acu tenant create", text)
 
+    def test_readme_does_not_call_item_qms_apply_a_noop(self):
+        text = README.read_text()
+        self.assertNotIn("is a no-op", text)
+        self.assertIn("config/qms/20-stock-item-qms.yaml", text)
+        self.assertIn("endpoint: QMS/22.200.001", text)
+
     def test_readme_does_not_run_acu_check(self):
         in_fence = False
         for line in README.read_text().splitlines():
@@ -194,6 +205,7 @@ class TestV12PinnedLab5Qms(unittest.TestCase):
         for key in required:
             self.assertIn(key, text)
         self.assertIn("kborovik/acu-custom-qms", text)
+        self.assertIn("tag=v0.3.0", text)
         self.assertIn("Lab5_QMS_Customization.zip", text)
         self.assertIn("QMS/22.200.001", text)
         sha = next(
