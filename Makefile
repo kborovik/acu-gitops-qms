@@ -115,10 +115,10 @@ rebuild: ## Full CNBN recreate + pinned Lab5.QMS (serial; never acu check)
 	$(MAKE) delete
 	$(MAKE) create
 	$(MAKE) apply
-	$(MAKE) run
 	$(MAKE) publish
 	$(MAKE) qms
 	$(MAKE) diff
+	$(MAKE) run
 	$(MAKE) state
 	$(call header,rebuild green on $(TENANT))
 

@@ -19,8 +19,11 @@ steps:
     keys: [Production, "${asm_immune}"]
     expand: [StockComponents]
   capture:
+    StockComponents[0].id: immune_ech_id
     StockComponents[0].LineNbr: immune_ech_line
+    StockComponents[1].id: immune_eld_id
     StockComponents[1].LineNbr: immune_eld_line
+    StockComponents[2].id: immune_ash_id
     StockComponents[2].LineNbr: immune_ash_line
 - id: alloc-immune
   put: KitAssembly
@@ -28,17 +31,20 @@ steps:
     Type: Production
     ReferenceNbr: "${asm_immune}"
     StockComponents:
-    - LineNbr: "${immune_ech_line}"
+    - id: "${immune_ech_id}"
+      LineNbr: "${immune_ech_line}"
       StockInventoryID: RAW-ECH-EXT4
       LocationID: MAIN
       Allocations:
       - {LineNbr: "${immune_ech_line}", LocationID: MAIN, LotSerialNbr: NB-ECH-25001, Qty: 1.2}
-    - LineNbr: "${immune_eld_line}"
+    - id: "${immune_eld_id}"
+      LineNbr: "${immune_eld_line}"
       StockInventoryID: RAW-ELD-EXT10
       LocationID: MAIN
       Allocations:
       - {LineNbr: "${immune_eld_line}", LocationID: MAIN, LotSerialNbr: NB-ELD-25001, Qty: 0.9}
-    - LineNbr: "${immune_ash_line}"
+    - id: "${immune_ash_id}"
+      LineNbr: "${immune_ash_line}"
       StockInventoryID: RAW-ASH-EXT5
       LocationID: MAIN
       Allocations:
@@ -68,8 +74,11 @@ steps:
     keys: [Production, "${asm_cardio}"]
     expand: [StockComponents]
   capture:
+    StockComponents[0].id: cardio_om3_id
     StockComponents[0].LineNbr: cardio_om3_line
+    StockComponents[1].id: cardio_coq_id
     StockComponents[1].LineNbr: cardio_coq_line
+    StockComponents[2].id: cardio_ast_id
     StockComponents[2].LineNbr: cardio_ast_line
 - id: alloc-cardio
   put: KitAssembly
@@ -77,17 +86,20 @@ steps:
     Type: Production
     ReferenceNbr: "${asm_cardio}"
     StockComponents:
-    - LineNbr: "${cardio_om3_line}"
+    - id: "${cardio_om3_id}"
+      LineNbr: "${cardio_om3_line}"
       StockInventoryID: RAW-OMEGA3-70
       LocationID: MAIN
       Allocations:
       - {LineNbr: "${cardio_om3_line}", LocationID: MAIN, LotSerialNbr: NM-OM3-25001, Qty: 3.0}
-    - LineNbr: "${cardio_coq_line}"
+    - id: "${cardio_coq_id}"
+      LineNbr: "${cardio_coq_line}"
       StockInventoryID: RAW-COQ10-99
       LocationID: MAIN
       Allocations:
       - {LineNbr: "${cardio_coq_line}", LocationID: MAIN, LotSerialNbr: NP-COQ-25001, Qty: 0.3}
-    - LineNbr: "${cardio_ast_line}"
+    - id: "${cardio_ast_id}"
+      LineNbr: "${cardio_ast_line}"
       StockInventoryID: RAW-ASTA-10
       LocationID: MAIN
       Allocations:

@@ -97,6 +97,9 @@ class TestV7RawLotTracked(unittest.TestCase):
         self.assertIn("expand: [StockComponents]", text)
         self.assertIn("LotSerialNbr: NB-ECH-25001", text)
         self.assertIn("LotSerialNbr: NM-OM3-25001", text)
+        self.assertIn("StockComponents[0].id:", text)
+        self.assertIn('id: "${immune_ech_id}"', text)
+        self.assertIn('id: "${cardio_om3_id}"', text)
         for item_id in RAW_ITEMS:
             self.assertIn(item_id, text)
 

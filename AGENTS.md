@@ -6,6 +6,9 @@ https://github.com/kborovik/acu-google-qms
 The `acu` CLI lives in https://github.com/kborovik/acumatica-cli
 Create github issue in that repo, not here to fix CLI defects.
 
+The QMS customization lives in https://github.com/kborovik/acu-custom-qms
+Create github issue in that repo, not here, for QM customization errors or deficiencies.
+
 Never print `.env` secrets.
 
 ## In-product Help (this tenant)
