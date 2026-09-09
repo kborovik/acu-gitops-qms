@@ -105,7 +105,7 @@ class TestV13QcReadyLocations(unittest.TestCase):
         self.assertEqual(wh["ShippingLocationID"], "READY")
         self.assertEqual(wh["RMALocationID"], "QCHOLD")
         by_id = {row["LocationID"]: row for row in wh["Locations"]}
-        self.assertEqual(set(by_id), {"MAIN", "QCHOLD", "READY"})
+        self.assertEqual(set(by_id), {"MAIN", "QCHOLD", "READY", "QUARANTINE"})
         hold = by_id["QCHOLD"]
         self.assertTrue(hold["ReceiptsAllowed"])
         self.assertTrue(hold["TransfersAllowed"])
@@ -116,6 +116,12 @@ class TestV13QcReadyLocations(unittest.TestCase):
         self.assertTrue(ready["SalesAllowed"])
         self.assertTrue(ready["TransfersAllowed"])
         self.assertTrue(ready["AssemblyAllowed"])
+        quar = by_id["QUARANTINE"]
+        self.assertEqual(quar["Description"], "Quarantine")
+        self.assertFalse(quar["ReceiptsAllowed"])
+        self.assertFalse(quar["SalesAllowed"])
+        self.assertTrue(quar["TransfersAllowed"])
+        self.assertFalse(quar["AssemblyAllowed"])
 
     def test_warehouse_defaults_match_locations(self):
         recs = load_records(WH_DEF)

@@ -86,8 +86,9 @@ release — that is how a tenant rebuild stays on the same customization.
 | Site licence | Health Canada #302194 (Mfg / Pack / Label / Import) |
 
 Warehouse: `WH-MISS-01`. Locations: `MAIN` (general), `QCHOLD` (receipts; no
-sales/assembly), `READY` (released stock). Receiving default `QCHOLD`;
-shipping default `READY`. Buy receipts land in `QCHOLD`.
+sales/assembly), `READY` (released stock), `QUARANTINE` (failed inspection;
+transfers only). Receiving default `QCHOLD`; shipping default `READY`. Buy
+receipts land in `QCHOLD`.
 
 Item class IDs stay `PARTS` / `KITS` so `acu extract` filter-split still matches.
 
@@ -210,6 +211,7 @@ sequenceDiagram
 ```
 
 Lot status on inspected receipts is one of **QC Hold**, **Released**, or
-**Quarantine**. The receipt number, lot serial, and inspection order stay
-linked for the life of the lot. The attached CoA PDF and parsed JSON stay
-on the order as the audit record.
+**Quarantine**. Transfer failed lots to warehouse location `QUARANTINE`.
+The receipt number, lot serial, and inspection order stay linked for the
+life of the lot. The attached CoA PDF and parsed JSON stay on the order as
+the audit record.

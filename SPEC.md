@@ -30,7 +30,7 @@ Job-function logins on CanNordic QMS seed; humans type function not person; LLM 
 - yaml: `config/qms/20-stock-item-qms.yaml` → StockItem endpoint `QMS/22.200.001`; UsrQMSInspectionRequired + PlanID + UsrMinShelfLifeDays
 - yaml: `config/qms/30-qm-role-users.yaml` → Quality Manager ← qa-director, llm-agent
 - yaml: `scenario/20-buy.yaml` → receipt lines Location `QCHOLD` + LotSerialNbr + ExpirationDate
-- yaml: `config/master/51-warehouse-locations.yaml` → WH-MISS-01 Locations `MAIN` `QCHOLD` `READY`
+- yaml: `config/master/51-warehouse-locations.yaml` → WH-MISS-01 Locations `MAIN` `QCHOLD` `READY` `QUARANTINE`
 - yaml: `config/master/52-warehouse-defaults.yaml` → ReceivingLocationID `QCHOLD` ShippingLocationID `READY` RMALocationID `QCHOLD`
 - yaml: `config/baseline/91-company-packaging.yaml` → Company DecPlQty 3 WeightUOM KG VolumeUOM LITER
 - doc: `README.md` Personas table → Username + person + ERP roles; rebuild order tenant delete/create + `gmake publish` + post-publish `acu apply config/qms/`; ! `acu check`
@@ -51,7 +51,7 @@ V9: qms-plans-after-publish — `config/qms/10-inspection-plans.yaml` one Active
 V10: qms-item-flags — `config/qms/20-stock-item-qms.yaml` endpoint `QMS/22.200.001`; sets UsrQMSInspectionRequired + matching PlanID + UsrMinShelfLifeDays on every PARTS item; 80-stock-items-parts.yaml omits UsrQMS* (closes §B.1)
 V11: qm-users-after-role — `config/qms/30-qm-role-users.yaml` attaches Quality Manager to qa-director and llm-agent (role seeded by Lab5.QMS)
 V12: pinned-lab5-qms — rebuild publishes Lab5.QMS from `customization/Lab5.QMS.pin` (GitHub release tag + sha256) via `QMS_SRC` `lab5-qms deploy`; this repo ! compile DLL ! vendor zip ! `acu check`
-V13: qc-ready-locations — WH-MISS-01 Locations `MAIN` `QCHOLD` `READY`; `QCHOLD` ReceiptsAllowed TransfersAllowed SalesAllowed=false AssemblyAllowed=false; `READY` SalesAllowed TransfersAllowed AssemblyAllowed ReceiptsAllowed=false; ReceivingLocationID `QCHOLD`; ShippingLocationID `READY`; RMALocationID `QCHOLD`
+V13: qc-ready-locations — WH-MISS-01 Locations `MAIN` `QCHOLD` `READY` `QUARANTINE`; `QCHOLD` ReceiptsAllowed TransfersAllowed SalesAllowed=false AssemblyAllowed=false; `READY` SalesAllowed TransfersAllowed AssemblyAllowed ReceiptsAllowed=false; `QUARANTINE` TransfersAllowed SalesAllowed=false AssemblyAllowed=false ReceiptsAllowed=false; ReceivingLocationID `QCHOLD`; ShippingLocationID `READY`; RMALocationID `QCHOLD`
 V14: run-is-capital-buy — `acu run` = `scenario/10-seed-capital.yaml` + `scenario/20-buy.yaml`; no `scenario/30-build.yaml`; no `scenario/40-sell.yaml`
 
 ## §T TASKS
@@ -77,6 +77,7 @@ T18|x|drop README no-op claim; tests/test_qms.py require stock-item QMS endpoint
 T19|x|drop scenario/30-build.yaml + scenario/40-sell.yaml from run|V14
 T20|x|add WH-MISS-01 Locations QCHOLD READY; warehouse defaults Receiving QCHOLD Shipping READY RMA QCHOLD|V13
 T21|x|buy receipts Location QCHOLD; tests + README run=capital+buy|V7,V13,V14,I.yaml
+T22|x|add WH-MISS-01 Location QUARANTINE (failed inspection); tests + README|V13,I.yaml
 
 ## §B BUGS
 id|date|cause|fix

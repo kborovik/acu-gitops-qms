@@ -30,3 +30,10 @@ records:
     SalesAllowed: true
     TransfersAllowed: true
     AssemblyAllowed: true
+  - LocationID: QUARANTINE
+    Description: Quarantine
+    Active: true
+    ReceiptsAllowed: false
+    SalesAllowed: false
+    TransfersAllowed: true
+    AssemblyAllowed: false
