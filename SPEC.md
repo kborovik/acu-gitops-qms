@@ -78,7 +78,7 @@ T19|x|drop scenario/30-build.yaml + scenario/40-sell.yaml from run|V14
 T20|x|add WH-MISS-01 Locations QCHOLD READY; warehouse defaults Receiving QCHOLD Shipping READY RMA QCHOLD|V13
 T21|x|buy receipts Location QCHOLD; tests + README run=capital+buy|V7,V13,V14,I.yaml
 T22|x|add WH-MISS-01 Location QUARANTINE (failed inspection); tests + README|V13,I.yaml
-T23|.|drop `config/master/85-kit-specifications.yaml` + NumberingID `INKITASSY` + INPreferences `KitAssemblyNumberingID`; tests + README|V14
+T23|x|drop `config/master/85-kit-specifications.yaml` + NumberingID `INKITASSY` + INPreferences `KitAssemblyNumberingID`; tests + README|V14
 
 ## §B BUGS
 id|date|cause|fix

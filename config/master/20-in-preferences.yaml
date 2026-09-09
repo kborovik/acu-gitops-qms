@@ -17,7 +17,6 @@ records:
   ReceiptNumberingID: INRECEIPT
   IssueNumberingID: INISSUE
   AdjustmentNumberingID: INADJUST
-  KitAssemblyNumberingID: INKITASSY
   AutoPost: true
   SummPost: false
   NegQty: false

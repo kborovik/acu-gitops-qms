@@ -10,9 +10,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FEATURES = ROOT / "config/bootstrap/features.yaml"
 NUMBERING = ROOT / "config/master/05-numbering-sequences.yaml"
+IN_PREFS = ROOT / "config/master/20-in-preferences.yaml"
 LOTS = ROOT / "config/master/55-lot-serial-classes.yaml"
 PARTS = ROOT / "config/master/80-stock-items-parts.yaml"
 KITS = ROOT / "config/master/82-stock-items-kits.yaml"
+KIT_SPECS = ROOT / "config/master/85-kit-specifications.yaml"
 PLANS = ROOT / "config/qms/10-inspection-plans.yaml"
 ITEM_QMS = ROOT / "config/qms/20-stock-item-qms.yaml"
 QM_ROLE_USERS = ROOT / "config/qms/30-qm-role-users.yaml"
@@ -139,6 +141,22 @@ class TestV14RunIsCapitalBuy(unittest.TestCase):
         self.assertFalse((SCENARIO / "30-build.yaml").exists())
         self.assertFalse((SCENARIO / "40-sell.yaml").exists())
 
+    def test_kit_specs_and_inkitassy_absent(self):
+        self.assertFalse(KIT_SPECS.exists())
+        by_id = {r["NumberingID"]: r for r in load_records(NUMBERING)}
+        self.assertNotIn("INKITASSY", by_id)
+        recs = load_records(IN_PREFS)
+        self.assertEqual(len(recs), 1)
+        self.assertNotIn("KitAssemblyNumberingID", recs[0])
+
+    def test_readme_drops_kit_specs(self):
+        text = README.read_text()
+        self.assertNotIn("85-kit-specifications.yaml", text)
+        self.assertNotIn("INKITASSY", text)
+        self.assertNotIn("KitAssemblyNumberingID", text)
+        self.assertNotIn("Kit specs stay", text)
+        self.assertNotIn("Kit specs follow", text)
+
 
 class TestV8QmsNumbering(unittest.TestCase):
     def test_qord_qncr_present(self):
@@ -244,7 +262,7 @@ class TestV12PinnedLab5Qms(unittest.TestCase):
         for key in required:
             self.assertIn(key, text)
         self.assertIn("kborovik/acu-custom-qms", text)
-        self.assertIn("tag=v0.3.0", text)
+        self.assertIn("tag=v0.4.0", text)
         self.assertIn("Lab5_QMS_Customization.zip", text)
         self.assertIn("QMS/22.200.001", text)
         sha = next(

@@ -2,8 +2,8 @@
 
 Virgin-tenant Acumatica seed for **CanNordic BioNutra Inc.** (AcctCD `CNBN`), a
 Canadian CDMO and ingredient importer (NHPs, functional foods). Finance +
-inventory/distribution. Kit specs stay in master data; `acu run` does not
-assemble or sell them. QMS tenant for
+inventory/distribution. Kit stock items stay. Kit specifications and kit-assembly
+numbering are not seeded. `acu run` does not assemble or sell kits. QMS tenant for
 [`gcp-acu-coa`](https://github.com/kborovik/gcp-acu-coa). Single full seed — no `--flavor`.
 
 Sourced from the company profile and master data in
@@ -19,7 +19,7 @@ Customer. `ACCOUNT` and `INSITE` stay 10.
 
 `acu tenant create` publishes AcuBootstrap so
 Company maps CS101500 `DecPlQty` (this seed sets 3 for milligram-scale KG
-kit BOMs), SegmentedKey maps `Length` to CS202000 `Detail`, and Role
+quantities), SegmentedKey maps `Length` to CS202000 `Detail`, and Role
 `AssignUser` persists `UsersInRoles`. Do not use `acu check` (cold-lifecycle
 subcommand; going away).
 
@@ -91,9 +91,6 @@ transfers only). Receiving default `QCHOLD`; shipping default `READY`. Buy
 receipts land in `QCHOLD`.
 
 Item class IDs stay `PARTS` / `KITS` so `acu extract` filter-split still matches.
-
-Kit specs follow the domain BOMs (mg/capsule × 60, as KG per bottle):
-ImmunoShield `0.012` + `0.009` + `0.006` KG; CardioPure `0.060` + `0.006` + `0.001` KG.
 
 ## Catalog in this seed
 
