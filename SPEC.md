@@ -52,7 +52,7 @@ V10: qms-item-flags — `config/qms/20-stock-item-qms.yaml` endpoint `QMS/22.200
 V11: qm-users-after-role — `config/qms/30-qm-role-users.yaml` attaches Quality Manager to qa-director and llm-agent (role seeded by Lab5.QMS)
 V12: pinned-lab5-qms — rebuild publishes Lab5.QMS from `customization/Lab5.QMS.pin` (GitHub release tag + sha256) via `QMS_SRC` `lab5-qms deploy`; this repo ! compile DLL ! vendor zip ! `acu check`
 V13: qc-ready-locations — WH-MISS-01 Locations `MAIN` `QCHOLD` `READY` `QUARANTINE`; `QCHOLD` ReceiptsAllowed TransfersAllowed SalesAllowed=false AssemblyAllowed=false; `READY` SalesAllowed TransfersAllowed AssemblyAllowed ReceiptsAllowed=false; `QUARANTINE` TransfersAllowed SalesAllowed=false AssemblyAllowed=false ReceiptsAllowed=false; ReceivingLocationID `QCHOLD`; ShippingLocationID `READY`; RMALocationID `QCHOLD`
-V14: run-is-capital-buy — `acu run` = `scenario/10-seed-capital.yaml` + `scenario/20-buy.yaml`; no `scenario/30-build.yaml`; no `scenario/40-sell.yaml`
+V14: run-is-capital-buy — `acu run` = `scenario/10-seed-capital.yaml` + `scenario/20-buy.yaml`; no `scenario/30-build.yaml`; no `scenario/40-sell.yaml`; no `config/master/85-kit-specifications.yaml`; no NumberingID `INKITASSY`; INPreferences omits `KitAssemblyNumberingID`
 
 ## §T TASKS
 id|status|task|cites
@@ -78,6 +78,7 @@ T19|x|drop scenario/30-build.yaml + scenario/40-sell.yaml from run|V14
 T20|x|add WH-MISS-01 Locations QCHOLD READY; warehouse defaults Receiving QCHOLD Shipping READY RMA QCHOLD|V13
 T21|x|buy receipts Location QCHOLD; tests + README run=capital+buy|V7,V13,V14,I.yaml
 T22|x|add WH-MISS-01 Location QUARANTINE (failed inspection); tests + README|V13,I.yaml
+T23|.|drop `config/master/85-kit-specifications.yaml` + NumberingID `INKITASSY` + INPreferences `KitAssemblyNumberingID`; tests + README|V14
 
 ## §B BUGS
 id|date|cause|fix
