@@ -14,7 +14,7 @@ Job-function logins on CanNordic QMS seed; humans type function not person; LLM 
 - This repo = seed YAML; not implement QMS screens or ingestion engine; not compile `Lab5.QMS.dll`
 - Rebuild = `gmake rebuild` serial delete/create/apply/run/publish/qms/diff/state; never `acu check`
 - Quality Manager role + QM RolesInGraph stay in `acu-custom-qms` post-publish; this repo attaches users after that role exists
-- `config/qms/` is post-publish only (`QMS/22.200.001` + UsrQMS* + InspectionPlan + Quality Manager); not SEED_DIRS; virgin `gmake apply` + `gmake run` ! succeed before Lab5.QMS
+- `config/qms/` is post-publish only (`QMS/22.200.001` + UsrQMS* + InspectionPlan + Quality Manager + NumberingSequence `QORD` `QNCR`); not SEED_DIRS; virgin `gmake apply` + `gmake run` ! succeed before Lab5.QMS
 - Lab5.QMS zip pin in `customization/Lab5.QMS.pin` (GitHub release tag + sha256); bump pin on Lab5.QMS release so rebuilds stay on that package
 - User.Roles omit `Selected` (acu ≥ 0.29 / Bootstrap 1.10.0 AssignUser); persist membership in `92-role-users.yaml`
 - Company identity in `config/bootstrap/company.yaml`; DecPlQty/WeightUOM/VolumeUOM in `config/baseline/91-company-packaging.yaml` after UOMs
@@ -23,7 +23,7 @@ Job-function logins on CanNordic QMS seed; humans type function not person; LLM 
 - yaml: `config/master/91-users.yaml` → User keyed Username; Roles.Rolename (no Selected)
 - yaml: `config/master/90-roles.yaml` → Role keyed Rolename
 - yaml: `config/master/92-role-users.yaml` → Role.Users persist membership (AssignUser)
-- yaml: `config/master/05-numbering-sequences.yaml` → QORD QNCR
+- yaml: `config/qms/05-numbering-sequences.yaml` → NumberingSequence `QORD` `QNCR`; endpoint bootstrap; post-publish
 - yaml: `config/master/55-lot-serial-classes.yaml` → LotSerialClass `LOTRAW`
 - yaml: `config/master/80-stock-items-parts.yaml` → PARTS LotSerialClass `LOTRAW`; no UsrQMS*
 - yaml: `config/qms/10-inspection-plans.yaml` → InspectionPlan endpoint `QMS/22.200.001`
@@ -46,14 +46,14 @@ V4: llm-agent-qm — Rolename `LLM Agent` + user `llm-agent` works QM documents 
 V5: email-follows-username — Email = `{Username}@cannordic.ca`
 V6: personas-sync — README Personas table Username matches `91-users.yaml`
 V7: raw-lot-tracked — features.yaml includes `LotSerialTracking`; PARTS items LotSerialClass `LOTRAW` (Track Lot Numbers, When Received, User-Enterable, TrackExpirationDate, Auto-Incremental segment); KITS items LotSerialClass `NOTRACK` (Not Tracked); ClassID mask alphanumeric no hyphen; buy receipts carry LotSerialNbr + ExpirationDate + Location `QCHOLD`
-V8: qms-numbering — NumberingSequence `QORD` `QNCR` in `05-numbering-sequences.yaml`
+V8: qms-numbering — NumberingSequence `QORD` `QNCR` in `config/qms/05-numbering-sequences.yaml`; not SEED_DIRS (closes §B.3)
 V9: qms-plans-after-publish — `config/qms/10-inspection-plans.yaml` one Active InspectionPlan per raw InventoryID; endpoint `QMS/22.200.001`; not SEED_DIRS
 V10: qms-item-flags — `config/qms/20-stock-item-qms.yaml` endpoint `QMS/22.200.001`; sets UsrQMSInspectionRequired + matching PlanID + UsrMinShelfLifeDays on every PARTS item; 80-stock-items-parts.yaml omits UsrQMS* (closes §B.1)
 V11: qm-users-after-role — `config/qms/30-qm-role-users.yaml` attaches Quality Manager to qa-director and llm-agent (role seeded by Lab5.QMS)
 V12: pinned-lab5-qms — rebuild publishes Lab5.QMS from `customization/Lab5.QMS.pin` (GitHub release tag + sha256) via `QMS_SRC` `lab5-qms deploy`; this repo ! compile DLL ! vendor zip ! `acu check`
 V13: qc-ready-locations — WH-MISS-01 Locations `MAIN` `QCHOLD` `READY` `QUARANTINE`; `QCHOLD` ReceiptsAllowed TransfersAllowed SalesAllowed=false AssemblyAllowed=false; `READY` SalesAllowed TransfersAllowed AssemblyAllowed ReceiptsAllowed=false; `QUARANTINE` TransfersAllowed SalesAllowed=false AssemblyAllowed=false ReceiptsAllowed=false; ReceivingLocationID `QCHOLD`; ShippingLocationID `READY`; RMALocationID `QCHOLD`
 V14: run-is-capital-buy — `acu run` = `scenario/10-seed-capital.yaml` + `scenario/20-buy.yaml`; no `scenario/30-build.yaml`; no `scenario/40-sell.yaml`; no `config/master/85-kit-specifications.yaml`; no NumberingID `INKITASSY`; INPreferences omits `KitAssemblyNumberingID`
-V15: stock-path-without-qms — virgin `gmake apply` + `gmake run` succeed w/ Lab5.QMS unpublished; SEED_DIRS + `scenario/` omit `QMS/22.200.001` UsrQMS* InspectionPlan Quality Manager; those live in `config/qms/` post-publish; Makefile rebuild=delete/create/apply/run/publish/qms/diff/state (closes §B.2)
+V15: stock-path-without-qms — virgin `gmake apply` + `gmake run` succeed w/ Lab5.QMS unpublished; SEED_DIRS + `scenario/` omit `QMS/22.200.001` UsrQMS* InspectionPlan Quality Manager `QORD` `QNCR`; those live in `config/qms/` post-publish; Makefile rebuild=delete/create/apply/run/publish/qms/diff/state (closes §B.2)
 
 ## §T TASKS
 id|status|task|cites
@@ -81,8 +81,10 @@ T21|x|buy receipts Location QCHOLD; tests + README run=capital+buy|V7,V13,V14,I.
 T22|x|add WH-MISS-01 Location QUARANTINE (failed inspection); tests + README|V13,I.yaml
 T23|x|drop `config/master/85-kit-specifications.yaml` + NumberingID `INKITASSY` + INPreferences `KitAssemblyNumberingID`; tests + README|V14
 T24|x|patch Makefile rebuild=delete/create/apply/run/publish/qms/diff/state; apply ! config/qms; grep SEED_DIRS+scenario `QMS/22.200.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager` → 0 hits; tests + README order|V15,I.cmd
+T25|.|move NumberingSequence QORD QNCR to config/qms/05-numbering-sequences.yaml; Makefile qms apply dir; grep SEED_DIRS+scenario QORD QNCR → 0 hits; tests + README|V8,V15,B3
 
 ## §B BUGS
 id|date|cause|fix
 B1|2026-09-07|20-stock-item-qms.yaml missing endpoint → Default StockItem ignores UsrQMS*|V10
 B2|2026-09-09|stock apply/run mixed QMS-only YAML or Makefile ran run after qms → virgin tenant w/o Lab5.QMS fails|V15
+B3|2026-09-09|QORD QNCR in master NumberingSequence → virgin apply 422 NewSymbol (QMS-only insert)|V8,V15
