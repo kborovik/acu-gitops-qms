@@ -64,6 +64,7 @@ acu run scenario/10-seed-capital.yaml && acu state --assert-unchanged
 Bare `acu apply` / `acu diff` also prefer `config/` when those trees exist.
 `acu extract` hard-cuts emit to `config/{bootstrap,baseline,setup,master}/` (never root SEED_DIRS).
 `config/qms/` is not a SEED_DIR — apply it only after Lab5.QMS is published.
+`gmake apply` and `gmake run` succeed on a virgin tenant before Lab5.QMS is published.
 
 Lab5.QMS is not compiled here. `customization/Lab5.QMS.pin` names the GitHub
 release zip (`tag` + `sha256`). `gmake publish` runs `lab5-qms deploy` from

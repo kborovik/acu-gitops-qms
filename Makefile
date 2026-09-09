@@ -125,7 +125,7 @@ state: ## Capture derived-state observations into state/
 	$(call header,acu state)
 	acu state
 
-rebuild: delete .WAIT create .WAIT apply .WAIT publish .WAIT qms .WAIT diff .WAIT run .WAIT state ## Full CNBN recreate + pinned Lab5.QMS (serial; never acu check)
+rebuild: delete .WAIT create .WAIT apply .WAIT run .WAIT publish .WAIT qms .WAIT diff .WAIT state ## Full CNBN recreate + pinned Lab5.QMS (apply then run before publish; serial; never acu check)
 	$(call header,rebuild green on $(TENANT))
 
 ###############################################################################

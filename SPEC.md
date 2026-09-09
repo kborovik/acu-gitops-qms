@@ -80,7 +80,7 @@ T20|x|add WH-MISS-01 Locations QCHOLD READY; warehouse defaults Receiving QCHOLD
 T21|x|buy receipts Location QCHOLD; tests + README run=capital+buy|V7,V13,V14,I.yaml
 T22|x|add WH-MISS-01 Location QUARANTINE (failed inspection); tests + README|V13,I.yaml
 T23|x|drop `config/master/85-kit-specifications.yaml` + NumberingID `INKITASSY` + INPreferences `KitAssemblyNumberingID`; tests + README|V14
-T24|.|patch Makefile rebuild=delete/create/apply/run/publish/qms/diff/state; apply ! config/qms; grep SEED_DIRS+scenario `QMS/22.200.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager` → 0 hits; tests + README order|V15,I.cmd
+T24|x|patch Makefile rebuild=delete/create/apply/run/publish/qms/diff/state; apply ! config/qms; grep SEED_DIRS+scenario `QMS/22.200.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager` → 0 hits; tests + README order|V15,I.cmd
 
 ## §B BUGS
 id|date|cause|fix

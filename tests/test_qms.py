@@ -1,8 +1,9 @@
-"""QMS seed invariants (SPEC.md §V.7–§V.14)."""
+"""QMS seed invariants (SPEC.md §V.7–§V.15)."""
 
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import unittest
 from pathlib import Path
@@ -279,6 +280,102 @@ class TestV12PinnedLab5Qms(unittest.TestCase):
         self.assertIn("tenant delete", text)
         self.assertIn("tenant create", text)
         self.assertNotRegex(text, r"(?m)^\s*acu check\b")
+
+
+SEED_DIRS = (
+    ROOT / "config/bootstrap",
+    ROOT / "config/baseline",
+    ROOT / "config/setup",
+    ROOT / "config/master",
+)
+QMS_ONLY = re.compile(
+    r"QMS/22\.200\.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager"
+)
+REBUILD_STEPS = (
+    "delete",
+    "create",
+    "apply",
+    "run",
+    "publish",
+    "qms",
+    "diff",
+    "state",
+)
+
+
+def makefile_prereqs(name: str) -> list[str]:
+    prefix = f"{name}:"
+    for line in MAKEFILE.read_text().splitlines():
+        if line.startswith(prefix):
+            head = line.split("##", 1)[0]
+            return [p for p in head.split(":", 1)[1].split() if p != ".WAIT"]
+    raise AssertionError(f"Makefile target {name} missing")
+
+
+def makefile_recipe(name: str) -> list[str]:
+    prefix = f"{name}:"
+    collecting = False
+    recipe: list[str] = []
+    for line in MAKEFILE.read_text().splitlines():
+        if line.startswith(prefix):
+            collecting = True
+            continue
+        if not collecting:
+            continue
+        if line.startswith("\t"):
+            recipe.append(line[1:])
+            continue
+        if recipe:
+            break
+    return recipe
+
+
+class TestV15StockPathWithoutQms(unittest.TestCase):
+    def test_makefile_rebuild_runs_apply_then_run_before_publish(self):
+        steps = makefile_prereqs("rebuild")
+        self.assertEqual(steps, list(REBUILD_STEPS))
+        self.assertLess(steps.index("apply"), steps.index("run"))
+        self.assertLess(steps.index("run"), steps.index("publish"))
+        self.assertLess(steps.index("publish"), steps.index("qms"))
+
+    def test_makefile_apply_does_not_apply_config_qms(self):
+        recipe = makefile_recipe("apply")
+        self.assertIn("acu apply", recipe)
+        self.assertFalse(any("config/qms" in line for line in recipe))
+        qms = makefile_recipe("qms")
+        self.assertTrue(any("config/qms" in line for line in qms))
+
+    def test_seed_dirs_and_scenario_omit_qms_only_tokens(self):
+        hits: list[str] = []
+        roots = [*SEED_DIRS, ROOT / "scenario"]
+        for root in roots:
+            for path in root.rglob("*.yaml"):
+                text = path.read_text()
+                if QMS_ONLY.search(text):
+                    hits.append(str(path.relative_to(ROOT)))
+        self.assertEqual(hits, [])
+
+    def test_qms_tree_holds_qms_only_tokens(self):
+        texts = [p.read_text() for p in (ROOT / "config/qms").glob("*.yaml")]
+        joined = "\n".join(texts)
+        self.assertIn("QMS/22.200.001", joined)
+        self.assertIn("UsrQMS", joined)
+        self.assertIn("entity: InspectionPlan", joined)
+        self.assertIn("Rolename: Quality Manager", joined)
+
+    def test_readme_rebuild_order_apply_run_before_publish(self):
+        text = README.read_text()
+        apply_at = text.index("\nacu apply\n")
+        run_at = text.index("\nacu run\n")
+        publish_at = text.index("\ngmake publish\n")
+        qms_at = text.index("\nacu apply config/qms/\n")
+        self.assertLess(apply_at, run_at)
+        self.assertLess(run_at, publish_at)
+        self.assertLess(publish_at, qms_at)
+        self.assertIn(
+            "`gmake apply` and `gmake run` succeed on a virgin tenant before Lab5.QMS is published.",
+            text,
+        )
 
 
 if __name__ == "__main__":
