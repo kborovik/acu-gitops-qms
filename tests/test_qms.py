@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FEATURES = ROOT / "config/bootstrap/features.yaml"
 NUMBERING = ROOT / "config/master/05-numbering-sequences.yaml"
+NUMBERING_QMS = ROOT / "config/qms/05-numbering-sequences.yaml"
 IN_PREFS = ROOT / "config/master/20-in-preferences.yaml"
 LOTS = ROOT / "config/master/55-lot-serial-classes.yaml"
 PARTS = ROOT / "config/master/80-stock-items-parts.yaml"
@@ -160,12 +161,17 @@ class TestV14RunIsCapitalBuy(unittest.TestCase):
 
 
 class TestV8QmsNumbering(unittest.TestCase):
-    def test_qord_qncr_present(self):
-        by_id = {r["NumberingID"]: r for r in load_records(NUMBERING)}
-        self.assertIn("QORD", by_id)
-        self.assertIn("QNCR", by_id)
+    def test_qord_qncr_live_in_qms_not_master(self):
+        master = {r["NumberingID"] for r in load_records(NUMBERING)}
+        self.assertNotIn("QORD", master)
+        self.assertNotIn("QNCR", master)
+        by_id = {r["NumberingID"]: r for r in load_records(NUMBERING_QMS)}
+        self.assertEqual(set(by_id), {"QORD", "QNCR"})
         self.assertEqual(by_id["QORD"]["Descr"], "QMS Inspection Order")
         self.assertEqual(by_id["QNCR"]["Descr"], "QMS NCR")
+        doc = load_mapping(NUMBERING_QMS)
+        self.assertEqual(doc["entity"], "NumberingSequence")
+        self.assertEqual(doc["endpoint"], "bootstrap")
 
 
 class TestV9QmsPlansAfterPublish(unittest.TestCase):
@@ -289,7 +295,7 @@ SEED_DIRS = (
     ROOT / "config/master",
 )
 QMS_ONLY = re.compile(
-    r"QMS/22\.200\.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager"
+    r"QMS/22\.200\.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager|\bQORD\b|\bQNCR\b"
 )
 REBUILD_STEPS = (
     "delete",
@@ -343,7 +349,12 @@ class TestV15StockPathWithoutQms(unittest.TestCase):
         self.assertIn("acu apply", recipe)
         self.assertFalse(any("config/qms" in line for line in recipe))
         qms = makefile_recipe("qms")
-        self.assertTrue(any("config/qms" in line for line in qms))
+        self.assertIn("acu apply config/qms/", qms)
+
+    def test_qms_dir_applies_numbering_first(self):
+        names = sorted(p.name for p in (ROOT / "config/qms").glob("*.yaml"))
+        self.assertEqual(names[0], "05-numbering-sequences.yaml")
+        self.assertIn("10-inspection-plans.yaml", names)
 
     def test_seed_dirs_and_scenario_omit_qms_only_tokens(self):
         hits: list[str] = []
@@ -362,6 +373,8 @@ class TestV15StockPathWithoutQms(unittest.TestCase):
         self.assertIn("UsrQMS", joined)
         self.assertIn("entity: InspectionPlan", joined)
         self.assertIn("Rolename: Quality Manager", joined)
+        self.assertIn("QORD", joined)
+        self.assertIn("QNCR", joined)
 
     def test_readme_rebuild_order_apply_run_before_publish(self):
         text = README.read_text()

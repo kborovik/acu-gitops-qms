@@ -46,7 +46,7 @@ gmake publish
 # pin: customization/Lab5.QMS.pin → GitHub release kborovik/acu-custom-qms
 # override checkout: gmake publish QMS_SRC=/path/to/acu-custom-qms
 
-# 6. Post-publish: inspection plans + UsrQMS* + Quality Manager users
+# 6. Post-publish: QORD/QNCR numbering + inspection plans + UsrQMS* + Quality Manager users
 acu apply config/qms/
 
 # 7. Prove no drift (SEED_DIRS only; config/qms/ is post-publish)
@@ -73,7 +73,7 @@ matches the pin. `gmake fetch` downloads the release asset into `.cache/`
 and checks the digest. Bump the pin when `acu-custom-qms` ships a new
 release — that is how a tenant rebuild stays on the same customization.
 
-`config/qms/10-inspection-plans.yaml` and `config/qms/20-stock-item-qms.yaml` set `endpoint: QMS/22.200.001`. `acu apply` of those files persists InspectionPlan rows and `UsrQMSInspectionRequired`, `UsrQMSInspectionPlanID`, and `UsrMinShelfLifeDays`. `config/qms/30-qm-role-users.yaml` applies.
+`config/qms/05-numbering-sequences.yaml` seeds Bootstrap `NumberingSequence` `QORD` / `QNCR` (inspection orders / NCR). `config/qms/10-inspection-plans.yaml` and `config/qms/20-stock-item-qms.yaml` set `endpoint: QMS/22.200.001`. `acu apply` of those files persists InspectionPlan rows and `UsrQMSInspectionRequired`, `UsrQMSInspectionPlanID`, and `UsrMinShelfLifeDays`. `config/qms/30-qm-role-users.yaml` applies.
 
 ## Company
 
@@ -126,8 +126,8 @@ Item class IDs stay `PARTS` / `KITS` so `acu extract` filter-split still matches
 | `config/bootstrap/` | Company identity, features, credit terms, segmented keys (Bootstrap contract is package SoT — never scaffolded) |
 | `config/baseline/` | GL foundation (COA, ledger, subaccounts, UOMs, company packaging `91-company-packaging`) |
 | `config/setup/` | Financial year, master calendar, open periods |
-| `config/master/` | Numbering (`05-numbering-sequences` includes `QORD`/`QNCR`) before module prefs; `LOTRAW`; inventory, warehouse, items, vendors, customers; roles/users (`90-roles` then `91-users` then `92-role-users`) |
-| `config/qms/` | Post-publish Lab5.QMS: inspection plans, StockItem UsrQMS*, Quality Manager user attach. Not SEED_DIRS |
+| `config/master/` | Numbering (`05-numbering-sequences`) before module prefs; `LOTRAW`; inventory, warehouse, items, vendors, customers; roles/users (`90-roles` then `91-users` then `92-role-users`) |
+| `config/qms/` | Post-publish Lab5.QMS: `QORD`/`QNCR` numbering, inspection plans, StockItem UsrQMS*, Quality Manager user attach. Not SEED_DIRS |
 | `scenario/10-seed-capital.yaml` | Once-class owner capital JE (skip-if-present when present); Period = `${current_period}` |
 | `scenario/20-buy.yaml` | Additive ingredient PO, then receipt (lot + expiry at `QCHOLD`), then bill, then AP pay (four suppliers) |
 | `config/views/10-trial-balance.yaml` | Observer view (EndingBalance inquire; Period pinned literal; not SEED_DIRS) |

@@ -1,0 +1,18 @@
+entity: NumberingSequence
+key: NumberingID
+endpoint: bootstrap
+records:
+- NumberingID: QORD
+  Descr: QMS Inspection Order
+  StartNbr: '000000'
+  EndNbr: '999999'
+  WarnNbr: '999990'
+  NbrStep: 1
+  StartDate: '1900-01-01'
+- NumberingID: QNCR
+  Descr: QMS NCR
+  StartNbr: '000000'
+  EndNbr: '999999'
+  WarnNbr: '999990'
+  NbrStep: 1
+  StartDate: '1900-01-01'

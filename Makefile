@@ -112,10 +112,9 @@ _fetch-verify:
 			$(error sha256 mismatch for $(CACHE)/$(QMS_ASSET) (pin $(QMS_SHA256), got $(got))))))
 	:
 
-qms: ## Post-publish QMS master (inspection plans + UsrQMS* + Quality Manager)
+qms: ## Post-publish QMS master (QORD/QNCR numbering + inspection plans + UsrQMS* + Quality Manager)
 	$(call header,acu apply config/qms/)
-	acu apply config/qms/10-inspection-plans.yaml
-	acu apply config/qms/20-stock-item-qms.yaml config/qms/30-qm-role-users.yaml
+	acu apply config/qms/
 
 diff: ## Prove SEED_DIRS have no drift (config/qms/ is post-publish)
 	$(call header,acu diff)
