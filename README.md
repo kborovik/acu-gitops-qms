@@ -67,11 +67,13 @@ Bare `acu apply` / `acu diff` also prefer `config/` when those trees exist.
 `gmake acu-apply` and `gmake acu-run` succeed on a virgin tenant before Lab5.QMS is published.
 
 Lab5.QMS is not compiled here. `customization/Lab5.QMS.pin` names the GitHub
-release zip (`tag` + `sha256`). `gmake qms-publish` runs `lab5-qms deploy` from
-`QMS_SRC` (default `../acu-custom-qms`) only when that checkout's version
-matches the pin. `gmake qms-fetch` downloads the pinned release asset into
-`.cache/` and checks the digest. `gmake qms-update` resolves the latest
-GitHub release, rewrites the pin `tag` + `sha256`, and downloads that zip.
+release zip (`tag` + `sha256`). `gmake qms-publish` runs `lab5-qms deploy` via
+`uv --project QMS_SRC` (default `../acu-custom-qms`) from this cwd so the
+publish target is this `.env` host and tenant, not the sibling checkout `.env`.
+It runs only when that checkout's version matches the pin. `gmake qms-fetch`
+downloads the pinned release asset into `.cache/` and checks the digest.
+`gmake qms-update` resolves the latest GitHub release, rewrites the pin `tag`
++ `sha256`, and downloads that zip.
 
 `config/qms/05-numbering-sequences.yaml` seeds Bootstrap `NumberingSequence` `QORD` / `QNCR` (inspection orders / NCR). `config/qms/10-inspection-plans.yaml` and `config/qms/20-stock-item-qms.yaml` set `endpoint: QMS/22.200.001`. `acu apply` of those files persists InspectionPlan rows and `UsrQMSInspectionRequired`, `UsrQMSInspectionPlanID`, and `UsrMinShelfLifeDays`. `config/qms/30-qm-role-users.yaml` applies.
 

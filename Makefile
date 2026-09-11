@@ -99,13 +99,14 @@ acu-state: ## Capture derived-state observations into state/
 # QMS — Lab5.QMS pin, zip, publish, post-publish seed
 ###############################################################################
 
-# Publish the pinned Lab5.QMS zip. Prefers a sibling checkout at the pin tag
-# (same .env tenant). This repo never compiles the DLL.
+# Publish the pinned Lab5.QMS zip from QMS_SRC. uv --project keeps cwd here so
+# lab5-qms / acu walk-up this .env (host + tenant), not QMS_SRC/.env.
+# This repo never compiles the DLL.
 qms-publish: ## Publish pinned Lab5.QMS from QMS_SRC (lab5-qms deploy)
 	$(call need-qms-src)
 	$(call need-pin-match)
 	$(call header,lab5-qms deploy $(QMS_TAG) from $(QMS_SRC))
-	cd "$(QMS_SRC)" && uv run lab5-qms deploy
+	uv run --project "$(QMS_SRC)" lab5-qms deploy
 
 qms-fetch: _qms-fetch-download .WAIT _qms-fetch-verify ## Download the pinned GitHub-release zip into .cache/ and verify sha256
 	:

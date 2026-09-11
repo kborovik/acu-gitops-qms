@@ -290,6 +290,14 @@ class TestV12PinnedLab5Qms(unittest.TestCase):
         self.assertIn("tenant create", text)
         self.assertNotRegex(text, r"(?m)^\s*acu check\b")
 
+    def test_qms_publish_uses_this_repo_dotenv(self):
+        text = MAKEFILE.read_text()
+        self.assertIn('uv run --project "$(QMS_SRC)" lab5-qms deploy', text)
+        self.assertNotIn(
+            'cd "$(QMS_SRC)" && uv run lab5-qms deploy',
+            text,
+        )
+
 
 SEED_DIRS = (
     ROOT / "config/bootstrap",
