@@ -231,13 +231,14 @@ class TestReadmeQmsLayout(unittest.TestCase):
         text = README.read_text()
         self.assertNotIn("matrix.yaml", text)
         self.assertIn("config/qms/", text)
-        self.assertIn("acu apply config/qms/", text)
+        self.assertIn("gmake qms-apply", text)
         self.assertIn("LOTRAW", text)
         self.assertIn("QORD", text)
-        self.assertIn("gmake publish", text)
+        self.assertIn("gmake qms-publish", text)
+        self.assertIn("gmake qms-update", text)
         self.assertIn("customization/Lab5.QMS.pin", text)
-        self.assertIn("acu tenant delete", text)
-        self.assertIn("acu tenant create", text)
+        self.assertIn("gmake acu-delete", text)
+        self.assertIn("gmake acu-create", text)
 
     def test_readme_does_not_call_item_qms_apply_a_noop(self):
         text = README.read_text()
@@ -269,7 +270,7 @@ class TestV12PinnedLab5Qms(unittest.TestCase):
         for key in required:
             self.assertIn(key, text)
         self.assertIn("kborovik/acu-custom-qms", text)
-        self.assertIn("tag=v0.4.0", text)
+        self.assertRegex(text, r"(?m)^tag=v\d+\.\d+\.\d+$")
         self.assertIn("Lab5_QMS_Customization.zip", text)
         self.assertIn("QMS/22.200.001", text)
         sha = next(
@@ -298,24 +299,46 @@ QMS_ONLY = re.compile(
     r"QMS/22\.200\.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager|\bQORD\b|\bQNCR\b"
 )
 REBUILD_STEPS = (
+    "acu-delete",
+    "acu-create",
+    "acu-apply",
+    "acu-run",
+    "qms-publish",
+    "qms-apply",
+    "acu-diff",
+    "acu-state",
+)
+GONE_RECIPES = (
+    "preflight",
     "delete",
     "create",
     "apply",
     "run",
     "publish",
+    "fetch",
     "qms",
     "diff",
     "state",
 )
 
 
-def makefile_prereqs(name: str) -> list[str]:
+def _makefile_target_line(name: str) -> str | None:
     prefix = f"{name}:"
     for line in MAKEFILE.read_text().splitlines():
-        if line.startswith(prefix):
-            head = line.split("##", 1)[0]
-            return [p for p in head.split(":", 1)[1].split() if p != ".WAIT"]
-    raise AssertionError(f"Makefile target {name} missing")
+        if not line.startswith(prefix):
+            continue
+        rest = line[len(prefix) :]
+        if rest == "" or rest[0] in " \t#":
+            return line
+    return None
+
+
+def makefile_prereqs(name: str) -> list[str]:
+    line = _makefile_target_line(name)
+    if line is None:
+        raise AssertionError(f"Makefile target {name} missing")
+    head = line.split("##", 1)[0]
+    return [p for p in head.split(":", 1)[1].split() if p != ".WAIT"]
 
 
 def makefile_recipe(name: str) -> list[str]:
@@ -324,7 +347,9 @@ def makefile_recipe(name: str) -> list[str]:
     recipe: list[str] = []
     for line in MAKEFILE.read_text().splitlines():
         if line.startswith(prefix):
-            collecting = True
+            rest = line[len(prefix) :]
+            if rest == "" or rest[0] in " \t#":
+                collecting = True
             continue
         if not collecting:
             continue
@@ -340,16 +365,30 @@ class TestV15StockPathWithoutQms(unittest.TestCase):
     def test_makefile_rebuild_runs_apply_then_run_before_publish(self):
         steps = makefile_prereqs("rebuild")
         self.assertEqual(steps, list(REBUILD_STEPS))
-        self.assertLess(steps.index("apply"), steps.index("run"))
-        self.assertLess(steps.index("run"), steps.index("publish"))
-        self.assertLess(steps.index("publish"), steps.index("qms"))
+        self.assertLess(steps.index("acu-apply"), steps.index("acu-run"))
+        self.assertLess(steps.index("acu-run"), steps.index("qms-publish"))
+        self.assertLess(steps.index("qms-publish"), steps.index("qms-apply"))
+        self.assertNotIn("qms-update", steps)
+
+    def test_makefile_unprefixed_acu_qms_recipes_are_gone(self):
+        for name in GONE_RECIPES:
+            self.assertIsNone(_makefile_target_line(name), name)
 
     def test_makefile_apply_does_not_apply_config_qms(self):
-        recipe = makefile_recipe("apply")
+        recipe = makefile_recipe("acu-apply")
         self.assertIn("acu apply", recipe)
         self.assertFalse(any("config/qms" in line for line in recipe))
-        qms = makefile_recipe("qms")
+        qms = makefile_recipe("qms-apply")
         self.assertIn("acu apply config/qms/", qms)
+
+    def test_makefile_qms_update_rewrites_pin_and_downloads(self):
+        recipe = makefile_recipe("qms-update")
+        joined = "\n".join(recipe)
+        self.assertIn("gh release view", joined)
+        self.assertIn("gh release download", joined)
+        self.assertIn("$(PIN)", joined)
+        self.assertIn("tag=", joined)
+        self.assertIn("sha256=", joined)
 
     def test_qms_dir_applies_numbering_first(self):
         names = sorted(p.name for p in (ROOT / "config/qms").glob("*.yaml"))
@@ -378,15 +417,15 @@ class TestV15StockPathWithoutQms(unittest.TestCase):
 
     def test_readme_rebuild_order_apply_run_before_publish(self):
         text = README.read_text()
-        apply_at = text.index("\nacu apply\n")
-        run_at = text.index("\nacu run\n")
-        publish_at = text.index("\ngmake publish\n")
-        qms_at = text.index("\nacu apply config/qms/\n")
+        apply_at = text.index("\ngmake acu-apply\n")
+        run_at = text.index("\ngmake acu-run\n")
+        publish_at = text.index("\ngmake qms-publish\n")
+        qms_at = text.index("\ngmake qms-apply\n")
         self.assertLess(apply_at, run_at)
         self.assertLess(run_at, publish_at)
         self.assertLess(publish_at, qms_at)
         self.assertIn(
-            "`gmake apply` and `gmake run` succeed on a virgin tenant before Lab5.QMS is published.",
+            "`gmake acu-apply` and `gmake acu-run` succeed on a virgin tenant before Lab5.QMS is published.",
             text,
         )
 

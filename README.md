@@ -25,35 +25,35 @@ subcommand; going away).
 
 ## Rebuild order
 
-One shot: `gmake rebuild`. Steps:
+One shot: `gmake rebuild`. Acu recipes are `acu-*`; Lab5.QMS recipes are `qms-*`. Steps:
 
 ```sh
 # 1. Credentials in .env (ACU_PASSWORD, ACU_TENANT, ACU_BASE_URL, ACU_API_VERSION)
-acu config check
+gmake acu-preflight
 
 # 2. Recreate empty tenant (create = first-login + AcuBootstrap)
-acu tenant delete --login CNBN --yes
-acu tenant create --login CNBN
+gmake acu-delete
+gmake acu-create
 
 # 3. Seed config umbrella (bootstrap → baseline → setup → master)
-acu apply
+gmake acu-apply
 
 # 4. Lifecycle scenarios (once capital → buy)
-acu run
+gmake acu-run
 
 # 5. Publish pinned Lab5.QMS (sibling checkout at pin tag; this repo does not compile)
-gmake publish
+gmake qms-publish
 # pin: customization/Lab5.QMS.pin → GitHub release kborovik/acu-custom-qms
-# override checkout: gmake publish QMS_SRC=/path/to/acu-custom-qms
+# override checkout: gmake qms-publish QMS_SRC=/path/to/acu-custom-qms
 
 # 6. Post-publish: QORD/QNCR numbering + inspection plans + UsrQMS* + Quality Manager users
-acu apply config/qms/
+gmake qms-apply
 
 # 7. Prove no drift (SEED_DIRS only; config/qms/ is post-publish)
-acu diff
+gmake acu-diff
 
 # 8. Capture derived-state observations (EndingBalance trial-balance)
-acu state
+gmake acu-state
 # warm gate: once-capital only — additive buy moves numeric observations
 acu run scenario/10-seed-capital.yaml && acu state --assert-unchanged
 
@@ -64,14 +64,14 @@ acu run scenario/10-seed-capital.yaml && acu state --assert-unchanged
 Bare `acu apply` / `acu diff` also prefer `config/` when those trees exist.
 `acu extract` hard-cuts emit to `config/{bootstrap,baseline,setup,master}/` (never root SEED_DIRS).
 `config/qms/` is not a SEED_DIR — apply it only after Lab5.QMS is published.
-`gmake apply` and `gmake run` succeed on a virgin tenant before Lab5.QMS is published.
+`gmake acu-apply` and `gmake acu-run` succeed on a virgin tenant before Lab5.QMS is published.
 
 Lab5.QMS is not compiled here. `customization/Lab5.QMS.pin` names the GitHub
-release zip (`tag` + `sha256`). `gmake publish` runs `lab5-qms deploy` from
+release zip (`tag` + `sha256`). `gmake qms-publish` runs `lab5-qms deploy` from
 `QMS_SRC` (default `../acu-custom-qms`) only when that checkout's version
-matches the pin. `gmake fetch` downloads the release asset into `.cache/`
-and checks the digest. Bump the pin when `acu-custom-qms` ships a new
-release — that is how a tenant rebuild stays on the same customization.
+matches the pin. `gmake qms-fetch` downloads the pinned release asset into
+`.cache/` and checks the digest. `gmake qms-update` resolves the latest
+GitHub release, rewrites the pin `tag` + `sha256`, and downloads that zip.
 
 `config/qms/05-numbering-sequences.yaml` seeds Bootstrap `NumberingSequence` `QORD` / `QNCR` (inspection orders / NCR). `config/qms/10-inspection-plans.yaml` and `config/qms/20-stock-item-qms.yaml` set `endpoint: QMS/22.200.001`. `acu apply` of those files persists InspectionPlan rows and `UsrQMSInspectionRequired`, `UsrQMSInspectionPlanID`, and `UsrMinShelfLifeDays`. `config/qms/30-qm-role-users.yaml` applies.
 
@@ -122,7 +122,7 @@ Item class IDs stay `PARTS` / `KITS` so `acu extract` filter-split still matches
 |------|------|
 | `.env` | Secrets + REST where (`ACU_BASE_URL`) + Default pin (`ACU_API_VERSION`) |
 | `customization/Lab5.QMS.pin` | Pinned Lab5.QMS GitHub release (tag + sha256). Not the zip |
-| `Makefile` | `gmake rebuild` / `publish` / `qms` — never `acu check` |
+| `Makefile` | `gmake rebuild` / `acu-*` / `qms-*` — never `acu check` |
 | `config/bootstrap/` | Company identity, features, credit terms, segmented keys (Bootstrap contract is package SoT — never scaffolded) |
 | `config/baseline/` | GL foundation (COA, ledger, subaccounts, UOMs, company packaging `91-company-packaging`) |
 | `config/setup/` | Financial year, master calendar, open periods |

@@ -22,7 +22,7 @@ header = $(info $(blue)==> $1 <==$(reset))
 # later words (`--jobserver-auth=...`) also contain `n` and must be ignored.
 dry-run = $(findstring n,$(firstword $(MAKEFLAGS)))
 
-# Sibling customization checkout. Override: gmake publish QMS_SRC=/path/to/acu-custom-qms
+# Sibling customization checkout. Override: gmake qms-publish QMS_SRC=/path/to/acu-custom-qms
 QMS_SRC ?= $(abspath ../acu-custom-qms)
 PIN := customization/Lab5.QMS.pin
 CACHE := .cache
@@ -44,12 +44,14 @@ need-env = $(if $(dry-run),,$(if $(wildcard .env),,$(error .env missing — decr
 need-acu = $(if $(dry-run),,$(if $(shell command -v acu),,$(error acu not on PATH — uv tool install acumatica-cli)))
 need-gh = $(if $(dry-run),,$(if $(shell command -v gh),,$(error gh CLI required — https://cli.github.com/)))
 need-qms-src = $(if $(dry-run),,$(if $(wildcard $(QMS_SRC)/.),,$(error QMS_SRC missing: $(QMS_SRC) — clone $(QMS_REPO) or pass QMS_SRC=)))
-need-pin-match = $(if $(dry-run),,$(if $(filter $(PIN_VERSION),$(src-version)),,$(error QMS_SRC version $(src-version) != pin $(PIN_VERSION) ($(PIN)) — checkout $(QMS_TAG) in $(QMS_SRC) or bump the pin after a Lab5.QMS release)))
+need-pin-match = $(if $(dry-run),,$(if $(filter $(PIN_VERSION),$(src-version)),,$(error QMS_SRC version $(src-version) != pin $(PIN_VERSION) ($(PIN)) — checkout $(QMS_TAG) in $(QMS_SRC) or gmake qms-update)))
 
 default: help
 
-.PHONY: help preflight rebuild delete create apply run publish fetch qms diff state test
-.PHONY: _fetch-download _fetch-verify
+.PHONY: help test rebuild
+.PHONY: acu-preflight acu-delete acu-create acu-apply acu-run acu-diff acu-state
+.PHONY: qms-publish qms-fetch qms-update qms-apply
+.PHONY: _qms-fetch-download _qms-fetch-verify
 
 ###############################################################################
 # Tests
@@ -60,43 +62,55 @@ test: ## Local unit tests (no live tenant)
 	python3 -m unittest discover -s tests -p 'test_*.py' -v
 
 ###############################################################################
-# Rebuild — never `acu check` (subcommand is going away)
+# Acu — tenant + seed (no Lab5.QMS)
 ###############################################################################
 
-preflight: ## Read-only acu config check against .env
+acu-preflight: ## Read-only acu config check against .env
 	$(call need-env)
 	$(call need-acu)
 	$(call header,acu config check)
 	acu config check
 
-delete: preflight ## Delete ACU_TENANT (irreversible)
+acu-delete: acu-preflight ## Delete ACU_TENANT (irreversible)
 	$(call header,Deleting tenant $(TENANT))
 	acu tenant delete --login "$(TENANT)" --yes
 
-create: ## Create ACU_TENANT + first-login + AcuBootstrap
+acu-create: ## Create ACU_TENANT + first-login + AcuBootstrap
 	$(call header,Creating tenant $(TENANT))
 	acu tenant create --login "$(TENANT)"
 
-apply: ## Seed config/{bootstrap,baseline,setup,master}/
+acu-apply: ## Seed config/ bootstrap → baseline → setup → master
 	$(call header,acu apply)
 	acu apply
 
-run: ## Lifecycle scenarios (capital → buy)
+acu-run: ## Lifecycle scenarios (capital → buy)
 	$(call header,acu run)
 	acu run
 
+acu-diff: ## Prove SEED_DIRS have no drift (config/qms/ is post-publish)
+	$(call header,acu diff)
+	acu diff
+
+acu-state: ## Capture derived-state observations into state/
+	$(call header,acu state)
+	acu state
+
+###############################################################################
+# QMS — Lab5.QMS pin, zip, publish, post-publish seed
+###############################################################################
+
 # Publish the pinned Lab5.QMS zip. Prefers a sibling checkout at the pin tag
 # (same .env tenant). This repo never compiles the DLL.
-publish: ## Publish pinned Lab5.QMS from QMS_SRC (lab5-qms deploy)
+qms-publish: ## Publish pinned Lab5.QMS from QMS_SRC (lab5-qms deploy)
 	$(call need-qms-src)
 	$(call need-pin-match)
 	$(call header,lab5-qms deploy $(QMS_TAG) from $(QMS_SRC))
 	cd "$(QMS_SRC)" && uv run lab5-qms deploy
 
-fetch: _fetch-download .WAIT _fetch-verify ## Download the pinned GitHub-release zip into .cache/ and verify sha256
+qms-fetch: _qms-fetch-download .WAIT _qms-fetch-verify ## Download the pinned GitHub-release zip into .cache/ and verify sha256
 	:
 
-_fetch-download:
+_qms-fetch-download:
 	$(call need-gh)
 	mkdir -p "$(CACHE)"
 	$(call header,Fetching $(QMS_ASSET) $(QMS_TAG))
@@ -106,25 +120,52 @@ _fetch-download:
 		--dir "$(CACHE)" \
 		--clobber
 
-_fetch-verify:
+_qms-fetch-verify:
 	$(if $(dry-run),,$(let got,$(firstword $(shell shasum -a 256 $(CACHE)/$(QMS_ASSET))),\
 		$(if $(filter $(QMS_SHA256),$(got)),$(info $(CACHE)/$(QMS_ASSET)),\
 			$(error sha256 mismatch for $(CACHE)/$(QMS_ASSET) (pin $(QMS_SHA256), got $(got))))))
 	:
 
-qms: ## Post-publish QMS master (QORD/QNCR numbering + inspection plans + UsrQMS* + Quality Manager)
+# Resolve the latest GitHub release, rewrite pin tag+sha256, download the zip.
+# Pin keys other than tag/sha256 are left untouched. Not part of rebuild —
+# rebuild publishes whatever the pin already names.
+qms-update: ## Bump Lab5.QMS.pin to latest GitHub release and download the zip
+	$(call need-gh)
+	$(call header,Latest Lab5.QMS release → $(PIN) + $(CACHE)/$(QMS_ASSET))
+	set -e; \
+	repo="$(QMS_REPO)"; \
+	asset="$(QMS_ASSET)"; \
+	pin="$(PIN)"; \
+	cache="$(CACHE)"; \
+	tag=$$(gh release view --repo "$$repo" --json tagName --jq .tagName); \
+	if [ -z "$$tag" ]; then echo "error: no latest release for $$repo" >&2; exit 1; fi; \
+	mkdir -p "$$cache"; \
+	echo "Fetching $$asset $$tag"; \
+	gh release download "$$tag" \
+		--repo "$$repo" \
+		--pattern "$$asset" \
+		--dir "$$cache" \
+		--clobber; \
+	got=$$(shasum -a 256 "$$cache/$$asset"); \
+	got=$${got%% *}; \
+	digest=$$(gh release view "$$tag" --repo "$$repo" --json assets --jq ".assets[] | select(.name==\"$$asset\") | .digest"); \
+	want=$$got; \
+	case "$$digest" in sha256:*) want=$${digest#sha256:};; "") want=$$got;; *) want=$$digest;; esac; \
+	if [ "$$got" != "$$want" ]; then echo "error: sha256 mismatch for $$cache/$$asset (release $$want, got $$got)" >&2; exit 1; fi; \
+	awk -v tag="$$tag" -v sha="$$got" 'BEGIN{t=0;s=0} /^tag=/{print "tag=" tag; t=1; next} /^sha256=/{print "sha256=" sha; s=1; next} {print} END{if(!t||!s) exit 1}' "$$pin" > "$$cache/pin.tmp"; \
+	mv "$$cache/pin.tmp" "$$pin"; \
+	echo "$$pin $$tag sha256=$$got"; \
+	echo "$$cache/$$asset"
+
+qms-apply: ## Post-publish QMS master (QORD/QNCR numbering + inspection plans + UsrQMS* + Quality Manager)
 	$(call header,acu apply config/qms/)
 	acu apply config/qms/
 
-diff: ## Prove SEED_DIRS have no drift (config/qms/ is post-publish)
-	$(call header,acu diff)
-	acu diff
+###############################################################################
+# Rebuild — never `acu check` (subcommand is going away)
+###############################################################################
 
-state: ## Capture derived-state observations into state/
-	$(call header,acu state)
-	acu state
-
-rebuild: delete .WAIT create .WAIT apply .WAIT run .WAIT publish .WAIT qms .WAIT diff .WAIT state ## Full CNBN recreate + pinned Lab5.QMS (apply then run before publish; serial; never acu check)
+rebuild: acu-delete .WAIT acu-create .WAIT acu-apply .WAIT acu-run .WAIT qms-publish .WAIT qms-apply .WAIT acu-diff .WAIT acu-state ## Full CNBN recreate + pinned Lab5.QMS (apply then run before publish; serial; never acu check)
 	$(call header,rebuild green on $(TENANT))
 
 ###############################################################################
@@ -134,25 +175,20 @@ rebuild: delete .WAIT create .WAIT apply .WAIT run .WAIT publish .WAIT qms .WAIT
 # Target-line double-hash descriptions, read with $(file) and split with $(let).
 help-src := $(file < $(firstword $(MAKEFILE_LIST)))
 help-words := $(foreach w,$(subst $(space),$(s),$(help-src)),$(if $(and $(findstring $(s)##$(s),$(w)),$(filter-out \#%,$(w))),$(w)))
-pad-apply := apply$(space)$(space)$(space)$(space)$(space)
-pad-create := create$(space)$(space)$(space)$(space)
-pad-delete := delete$(space)$(space)$(space)$(space)
-pad-diff := diff$(space)$(space)$(space)$(space)$(space)$(space)
-pad-fetch := fetch$(space)$(space)$(space)$(space)$(space)
-pad-preflight := preflight$(space)
-pad-publish := publish$(space)$(space)$(space)
-pad-qms := qms$(space)$(space)$(space)$(space)$(space)$(space)$(space)
-pad-rebuild := rebuild$(space)$(space)$(space)
-pad-run := run$(space)$(space)$(space)$(space)$(space)$(space)$(space)
-pad-state := state$(space)$(space)$(space)$(space)$(space)
-pad-test := test$(space)$(space)$(space)$(space)$(space)$(space)
-pad10 = $(or $(pad-$1),$1)
-show-help = $(let tgt desc,$(subst $(s)##$(s), ,$1),$(let name text,$(patsubst %:,%,$(firstword $(subst $(s),$(space),$(tgt)))) $(strip $(subst $(s),$(space),$(desc))),$(info   $(yellow)$(call pad10,$(name))$(reset) $(text))))
+help-name = $(let tgt desc,$(subst $(s)##$(s), ,$1),$(patsubst %:,%,$(firstword $(subst $(s),$(space),$(tgt)))))
+help-acu = $(foreach w,$(help-words),$(if $(filter acu-%,$(call help-name,$(w))),$(w)))
+help-qms = $(foreach w,$(help-words),$(if $(filter qms-%,$(call help-name,$(w))),$(w)))
+help-other = $(foreach w,$(help-words),$(if $(filter acu-% qms-%,$(call help-name,$(w))),,$(w)))
+show-help = $(let tgt desc,$(subst $(s)##$(s), ,$1),$(let name text,$(patsubst %:,%,$(firstword $(subst $(s),$(space),$(tgt)))) $(strip $(subst $(s),$(space),$(desc))),$(info   $(yellow)$(shell printf '%-14s' '$(name)')$(reset) $(text))))
 
 help:
 	$(info $(blue)Usage: $(green)gmake [recipe]$(reset))
 	$(info $(blue)Pinned Lab5.QMS:$(reset) $(QMS_TAG) ($(QMS_PACKAGE) $(QMS_ENDPOINT)))
 	$(info $(blue)QMS_SRC:$(reset) $(QMS_SRC))
-	$(info $(blue)Recipes:$(reset))
-	$(foreach w,$(sort $(help-words)),$(call show-help,$(w)))
+	$(info $(blue)Acu:$(reset))
+	$(foreach w,$(sort $(help-acu)),$(call show-help,$(w)))
+	$(info $(blue)QMS:$(reset))
+	$(foreach w,$(sort $(help-qms)),$(call show-help,$(w)))
+	$(info $(blue)Other:$(reset))
+	$(foreach w,$(sort $(help-other)),$(call show-help,$(w)))
 	:

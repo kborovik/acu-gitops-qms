@@ -12,10 +12,10 @@ Job-function logins on CanNordic QMS seed; humans type function not person; LLM 
 - Companion customization `acu-custom-qms`; ingestion `acu-google-qms`; CLI defects → `acumatica-cli` not this repo
 - Stock rows in `config/master/90-roles.yaml` stay; add custom Rolename `LLM Agent` only
 - This repo = seed YAML; not implement QMS screens or ingestion engine; not compile `Lab5.QMS.dll`
-- Rebuild = `gmake rebuild` serial delete/create/apply/run/publish/qms/diff/state; never `acu check`
+- Rebuild = `gmake rebuild` serial acu-delete/acu-create/acu-apply/acu-run/qms-publish/qms-apply/acu-diff/acu-state; never `acu check`
 - Quality Manager role + QM RolesInGraph stay in `acu-custom-qms` post-publish; this repo attaches users after that role exists
-- `config/qms/` is post-publish only (`QMS/22.200.001` + UsrQMS* + InspectionPlan + Quality Manager + NumberingSequence `QORD` `QNCR`); not SEED_DIRS; virgin `gmake apply` + `gmake run` ! succeed before Lab5.QMS
-- Lab5.QMS zip pin in `customization/Lab5.QMS.pin` (GitHub release tag + sha256); bump pin on Lab5.QMS release so rebuilds stay on that package
+- `config/qms/` is post-publish only (`QMS/22.200.001` + UsrQMS* + InspectionPlan + Quality Manager + NumberingSequence `QORD` `QNCR`); not SEED_DIRS; virgin `gmake acu-apply` + `gmake acu-run` ! succeed before Lab5.QMS
+- Lab5.QMS zip pin in `customization/Lab5.QMS.pin` (GitHub release tag + sha256); `gmake qms-update` latest release → pin tag+sha256 + `.cache/` zip; rebuilds stay on that package
 - User.Roles omit `Selected` (acu ≥ 0.29 / Bootstrap 1.10.0 AssignUser); persist membership in `92-role-users.yaml`
 - Company identity in `config/bootstrap/company.yaml`; DecPlQty/WeightUOM/VolumeUOM in `config/baseline/91-company-packaging.yaml` after UOMs
 
@@ -33,9 +33,9 @@ Job-function logins on CanNordic QMS seed; humans type function not person; LLM 
 - yaml: `config/master/51-warehouse-locations.yaml` → WH-MISS-01 Locations `MAIN` `QCHOLD` `READY` `QUARANTINE`
 - yaml: `config/master/52-warehouse-defaults.yaml` → ReceivingLocationID `QCHOLD` ShippingLocationID `READY` RMALocationID `QCHOLD`
 - yaml: `config/baseline/91-company-packaging.yaml` → Company DecPlQty 3 WeightUOM KG VolumeUOM LITER
-- doc: `README.md` Personas table → Username + person + ERP roles; rebuild order tenant delete/create + apply + run + `gmake publish` + post-publish `acu apply config/qms/`; ! `acu check`
-- cmd: `gmake apply` seeds SEED_DIRS (`acu apply` ! `config/qms/`); `gmake run` = capital+buy on stock tenant; `acu tenant delete` + `acu tenant create` recreate; `gmake publish` then `gmake qms`; `gmake rebuild` = delete/create/apply/run/publish/qms/diff/state; ! `acu check`
-- pin: `customization/Lab5.QMS.pin` → repo tag asset sha256 package endpoint; `gmake publish` deploys `QMS_SRC` at pin version
+- doc: `README.md` Personas table → Username + person + ERP roles; rebuild order tenant delete/create + apply + run + `gmake qms-publish` + post-publish `gmake qms-apply`; ! `acu check`
+- cmd: `gmake acu-apply` seeds SEED_DIRS (`acu apply` ! `config/qms/`); `gmake acu-run` = capital+buy on stock tenant; `gmake acu-delete` + `gmake acu-create` recreate; `gmake qms-publish` then `gmake qms-apply`; `gmake rebuild` = acu-delete/acu-create/acu-apply/acu-run/qms-publish/qms-apply/acu-diff/acu-state; `gmake qms-update` latest release → pin+zip; ! `acu check`
+- pin: `customization/Lab5.QMS.pin` → repo tag asset sha256 package endpoint; `gmake qms-publish` deploys `QMS_SRC` at pin version; `gmake qms-fetch` downloads pinned zip; `gmake qms-update` latest GitHub release → pin tag+sha256 + `.cache/` zip
 - map: `etremblay`→`qa-director`, `mvance`→`vp-supply-chain`, `dsingh`→`receiving-supervisor`, `sarchambault`→`erp-architect`; add `llm-agent`
 
 ## §V INVARIANTS
@@ -50,10 +50,10 @@ V8: qms-numbering — NumberingSequence `QORD` `QNCR` in `config/qms/05-numberin
 V9: qms-plans-after-publish — `config/qms/10-inspection-plans.yaml` one Active InspectionPlan per raw InventoryID; endpoint `QMS/22.200.001`; not SEED_DIRS
 V10: qms-item-flags — `config/qms/20-stock-item-qms.yaml` endpoint `QMS/22.200.001`; sets UsrQMSInspectionRequired + matching PlanID + UsrMinShelfLifeDays on every PARTS item; 80-stock-items-parts.yaml omits UsrQMS* (closes §B.1)
 V11: qm-users-after-role — `config/qms/30-qm-role-users.yaml` attaches Quality Manager to qa-director and llm-agent (role seeded by Lab5.QMS)
-V12: pinned-lab5-qms — rebuild publishes Lab5.QMS from `customization/Lab5.QMS.pin` (GitHub release tag + sha256) via `QMS_SRC` `lab5-qms deploy`; this repo ! compile DLL ! vendor zip ! `acu check`
+V12: pinned-lab5-qms — rebuild publishes Lab5.QMS from `customization/Lab5.QMS.pin` (GitHub release tag + sha256) via `QMS_SRC` `lab5-qms deploy`; `gmake qms-update` latest release → pin tag+sha256 + `.cache/` zip; this repo ! compile DLL ! vendor zip ! `acu check`
 V13: qc-ready-locations — WH-MISS-01 Locations `MAIN` `QCHOLD` `READY` `QUARANTINE`; `QCHOLD` ReceiptsAllowed TransfersAllowed SalesAllowed=false AssemblyAllowed=false; `READY` SalesAllowed TransfersAllowed AssemblyAllowed ReceiptsAllowed=false; `QUARANTINE` TransfersAllowed SalesAllowed=false AssemblyAllowed=false ReceiptsAllowed=false; ReceivingLocationID `QCHOLD`; ShippingLocationID `READY`; RMALocationID `QCHOLD`
 V14: run-is-capital-buy — `acu run` = `scenario/10-seed-capital.yaml` + `scenario/20-buy.yaml`; no `scenario/30-build.yaml`; no `scenario/40-sell.yaml`; no `config/master/85-kit-specifications.yaml`; no NumberingID `INKITASSY`; INPreferences omits `KitAssemblyNumberingID`
-V15: stock-path-without-qms — virgin `gmake apply` + `gmake run` succeed w/ Lab5.QMS unpublished; SEED_DIRS + `scenario/` omit `QMS/22.200.001` UsrQMS* InspectionPlan Quality Manager `QORD` `QNCR`; those live in `config/qms/` post-publish; Makefile rebuild=delete/create/apply/run/publish/qms/diff/state (closes §B.2)
+V15: stock-path-without-qms — virgin `gmake acu-apply` + `gmake acu-run` succeed w/ Lab5.QMS unpublished; SEED_DIRS + `scenario/` omit `QMS/22.200.001` UsrQMS* InspectionPlan Quality Manager `QORD` `QNCR`; those live in `config/qms/` post-publish; Makefile rebuild=acu-delete/acu-create/acu-apply/acu-run/qms-publish/qms-apply/acu-diff/acu-state; `gmake qms-update` ! part of rebuild (closes §B.2)
 
 ## §T TASKS
 id|status|task|cites
