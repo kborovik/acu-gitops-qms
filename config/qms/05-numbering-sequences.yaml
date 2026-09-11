@@ -4,6 +4,7 @@ endpoint: bootstrap
 records:
 - NumberingID: QORD
   Descr: QMS Inspection Order
+  NewSymbol: '<NEW>'
   StartNbr: '000000'
   EndNbr: '999999'
   WarnNbr: '999990'
@@ -11,6 +12,7 @@ records:
   StartDate: '1900-01-01'
 - NumberingID: QNCR
   Descr: QMS NCR
+  NewSymbol: '<NEW>'
   StartNbr: '000000'
   EndNbr: '999999'
   WarnNbr: '999990'

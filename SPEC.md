@@ -23,7 +23,7 @@ Job-function logins on CanNordic QMS seed; humans type function not person; LLM 
 - yaml: `config/master/91-users.yaml` → User keyed Username; Roles.Rolename (no Selected)
 - yaml: `config/master/90-roles.yaml` → Role keyed Rolename
 - yaml: `config/master/92-role-users.yaml` → Role.Users persist membership (AssignUser)
-- yaml: `config/qms/05-numbering-sequences.yaml` → NumberingSequence `QORD` `QNCR`; endpoint bootstrap; post-publish
+- yaml: `config/qms/05-numbering-sequences.yaml` → NumberingSequence `QORD` `QNCR`; NewSymbol `<NEW>`; endpoint bootstrap; post-publish
 - yaml: `config/master/55-lot-serial-classes.yaml` → LotSerialClass `LOTRAW`
 - yaml: `config/master/80-stock-items-parts.yaml` → PARTS LotSerialClass `LOTRAW`; no UsrQMS*
 - yaml: `config/qms/10-inspection-plans.yaml` → InspectionPlan endpoint `QMS/22.200.001`
@@ -46,7 +46,7 @@ V4: llm-agent-qm — Rolename `LLM Agent` + user `llm-agent` works QM documents 
 V5: email-follows-username — Email = `{Username}@cannordic.ca`
 V6: personas-sync — README Personas table Username matches `91-users.yaml`
 V7: raw-lot-tracked — features.yaml includes `LotSerialTracking`; PARTS items LotSerialClass `LOTRAW` (Track Lot Numbers, When Received, User-Enterable, TrackExpirationDate, Auto-Incremental segment); KITS items LotSerialClass `NOTRACK` (Not Tracked); ClassID mask alphanumeric no hyphen; buy receipts carry LotSerialNbr + ExpirationDate + Location `QCHOLD`
-V8: qms-numbering — NumberingSequence `QORD` `QNCR` in `config/qms/05-numbering-sequences.yaml`; not SEED_DIRS (closes §B.3)
+V8: qms-numbering — NumberingSequence `QORD` `QNCR` in `config/qms/05-numbering-sequences.yaml`; NewSymbol `<NEW>` (insert ! New Number Symbol or Manual Numbering); not SEED_DIRS (closes §B.3)
 V9: qms-plans-after-publish — `config/qms/10-inspection-plans.yaml` one Active InspectionPlan per raw InventoryID; endpoint `QMS/22.200.001`; not SEED_DIRS
 V10: qms-item-flags — `config/qms/20-stock-item-qms.yaml` endpoint `QMS/22.200.001`; sets UsrQMSInspectionRequired + matching PlanID + UsrMinShelfLifeDays on every PARTS item; 80-stock-items-parts.yaml omits UsrQMS* (closes §B.1)
 V11: qm-users-after-role — `config/qms/30-qm-role-users.yaml` attaches Quality Manager to qa-director and llm-agent (role seeded by Lab5.QMS)
@@ -82,9 +82,11 @@ T22|x|add WH-MISS-01 Location QUARANTINE (failed inspection); tests + README|V13
 T23|x|drop `config/master/85-kit-specifications.yaml` + NumberingID `INKITASSY` + INPreferences `KitAssemblyNumberingID`; tests + README|V14
 T24|x|patch Makefile rebuild=delete/create/apply/run/publish/qms/diff/state; apply ! config/qms; grep SEED_DIRS+scenario `QMS/22.200.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager` → 0 hits; tests + README order|V15,I.cmd
 T25|x|move NumberingSequence QORD QNCR to config/qms/05-numbering-sequences.yaml; Makefile qms apply dir; grep SEED_DIRS+scenario QORD QNCR → 0 hits; tests + README|V8,V15,B3
+T26|x|add NewSymbol '<NEW>' on QORD+QNCR; `acu apply config/qms/05-numbering-sequences.yaml` insert + re-apply no 422|V8,B4
 
 ## §B BUGS
 id|date|cause|fix
 B1|2026-09-07|20-stock-item-qms.yaml missing endpoint → Default StockItem ignores UsrQMS*|V10
 B2|2026-09-09|stock apply/run mixed QMS-only YAML or Makefile ran run after qms → virgin tenant w/o Lab5.QMS fails|V15
 B3|2026-09-09|QORD QNCR in master NumberingSequence → virgin apply 422 NewSymbol (QMS-only insert)|V8,V15
+B4|2026-09-10|QORD QNCR insert missing NewSymbol → 422 New Number Symbol or Manual Numbering|V8

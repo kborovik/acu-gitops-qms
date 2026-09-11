@@ -169,6 +169,8 @@ class TestV8QmsNumbering(unittest.TestCase):
         self.assertEqual(set(by_id), {"QORD", "QNCR"})
         self.assertEqual(by_id["QORD"]["Descr"], "QMS Inspection Order")
         self.assertEqual(by_id["QNCR"]["Descr"], "QMS NCR")
+        self.assertEqual(by_id["QORD"]["NewSymbol"], "<NEW>")
+        self.assertEqual(by_id["QNCR"]["NewSymbol"], "<NEW>")
         doc = load_mapping(NUMBERING_QMS)
         self.assertEqual(doc["entity"], "NumberingSequence")
         self.assertEqual(doc["endpoint"], "bootstrap")
