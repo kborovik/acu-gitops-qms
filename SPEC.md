@@ -82,7 +82,7 @@ T22|x|add WH-MISS-01 Location QUARANTINE (failed inspection); tests + README|V13
 T23|x|drop `config/master/85-kit-specifications.yaml` + NumberingID `INKITASSY` + INPreferences `KitAssemblyNumberingID`; tests + README|V14
 T24|x|patch Makefile rebuild=delete/create/apply/run/publish/qms/diff/state; apply ! config/qms; grep SEED_DIRS+scenario `QMS/22.200.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager` → 0 hits; tests + README order|V15,I.cmd
 T25|x|move NumberingSequence QORD QNCR to config/qms/05-numbering-sequences.yaml; Makefile qms apply dir; grep SEED_DIRS+scenario QORD QNCR → 0 hits; tests + README|V8,V15,B3
-T26|.|add NewSymbol '<NEW>' on QORD+QNCR; `acu apply config/qms/05-numbering-sequences.yaml` insert + re-apply no 422|V8,B4
+T26|x|add NewSymbol '<NEW>' on QORD+QNCR; `acu apply config/qms/05-numbering-sequences.yaml` insert + re-apply no 422|V8,B4
 
 ## §B BUGS
 id|date|cause|fix
