@@ -74,13 +74,6 @@ class TestV7RawLotTracked(unittest.TestCase):
         self.assertEqual(segs[0]["Type"], "Auto-Incremental Value")
         self.assertEqual(by_id["NOTRACK"]["TrackingMethod"], "Not Tracked")
 
-    def test_kits_use_notrack(self):
-        recs = load_records(KITS)
-        self.assertGreaterEqual(len(recs), 1)
-        for row in recs:
-            with self.subTest(item=row["InventoryID"]):
-                self.assertEqual(row["LotSerialClass"], "NOTRACK")
-
     def test_parts_use_lot_raw(self):
         by_id = {r["InventoryID"]: r for r in load_records(PARTS)}
         self.assertEqual(set(by_id), set(RAW_ITEMS))
@@ -151,6 +144,9 @@ class TestV14RunIsCapitalBuy(unittest.TestCase):
         self.assertEqual(len(recs), 1)
         self.assertNotIn("KitAssemblyNumberingID", recs[0])
 
+    def test_kit_stock_items_absent(self):
+        self.assertFalse(KITS.exists())
+
     def test_readme_drops_kit_specs(self):
         text = README.read_text()
         self.assertNotIn("85-kit-specifications.yaml", text)
@@ -158,6 +154,13 @@ class TestV14RunIsCapitalBuy(unittest.TestCase):
         self.assertNotIn("KitAssemblyNumberingID", text)
         self.assertNotIn("Kit specs stay", text)
         self.assertNotIn("Kit specs follow", text)
+
+    def test_readme_drops_kit_stock_items(self):
+        text = README.read_text()
+        self.assertNotIn("82-stock-items-kits.yaml", text)
+        self.assertNotIn("Kit stock items stay", text)
+        self.assertNotIn("FG-IMMUNE-DEFENSE-60C", text)
+        self.assertNotIn("FG-CARDIO-OMEGA-COQ10-60SG", text)
 
 
 class TestV8QmsNumbering(unittest.TestCase):

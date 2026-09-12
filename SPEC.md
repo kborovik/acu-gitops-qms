@@ -83,7 +83,7 @@ T23|x|drop `config/master/85-kit-specifications.yaml` + NumberingID `INKITASSY` 
 T24|x|patch Makefile rebuild=delete/create/apply/run/publish/qms/diff/state; apply ! config/qms; grep SEED_DIRS+scenario `QMS/22.200.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager` → 0 hits; tests + README order|V15,I.cmd
 T25|x|move NumberingSequence QORD QNCR to config/qms/05-numbering-sequences.yaml; Makefile qms apply dir; grep SEED_DIRS+scenario QORD QNCR → 0 hits; tests + README|V8,V15,B3
 T26|x|add NewSymbol '<NEW>' on QORD+QNCR; `acu apply config/qms/05-numbering-sequences.yaml` insert + re-apply no 422|V8,B4
-T27|.|drop `config/master/82-stock-items-kits.yaml`; README drop kit SKUs + stay-claim; tests assert file absent + drop NOTRACK-on-kits|V7,V14
+T27|x|drop `config/master/82-stock-items-kits.yaml`; README drop kit SKUs + stay-claim; tests assert file absent + drop NOTRACK-on-kits|V7,V14
 
 ## §B BUGS
 id|date|cause|fix

@@ -2,7 +2,7 @@
 
 Virgin-tenant Acumatica seed for **CanNordic BioNutra Inc.** (AcctCD `CNBN`), a
 Canadian CDMO and ingredient importer (NHPs, functional foods). Finance +
-inventory/distribution. Kit stock items stay. Kit specifications and kit-assembly
+inventory/distribution. Kit stock items, kit specifications, and kit-assembly
 numbering are not seeded. `acu run` does not assemble or sell kits. QMS tenant for
 [`gcp-acu-coa`](https://github.com/kborovik/gcp-acu-coa). Single full seed — no `--flavor`.
 
@@ -107,8 +107,6 @@ Item class IDs stay `PARTS` / `KITS` so `acu extract` filter-split still matches
 | `RAW-COQ10-99` | raw (lot `LOTRAW`, plan `PLAN-COQ10-99`) |
 | `RAW-OMEGA3-70` | raw (lot `LOTRAW`, plan `PLAN-OMEGA3-70`) |
 | `RAW-ASTA-10` | raw (lot `LOTRAW`, plan `PLAN-ASTA-10`) |
-| `FG-IMMUNE-DEFENSE-60C` | kit |
-| `FG-CARDIO-OMEGA-COQ10-60SG` | kit |
 | `VITALPLUS` | customer |
 | `HEARTLAB` | customer |
 | `WELLCAN` | customer |
