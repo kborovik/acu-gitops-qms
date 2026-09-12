@@ -2,8 +2,8 @@
 # This repo does not compile Lab5.QMS.dll or vendor the zip.
 # Source of truth: GitHub release of kborovik/acu-custom-qms.
 repo=kborovik/acu-custom-qms
-tag=v0.9.0
+tag=v0.10.0
 asset=Lab5_QMS_Customization.zip
-sha256=1de113988ecd3914d91d3ac070ad1f33d00a92b756ab3577e21128dbf7b4f85f
+sha256=163bdc555fd30dbd53b45026f434af116bc2b416a4c470fa628f322d5cdebd37
 package=Lab5.QMS
 endpoint=QMS/22.200.001
