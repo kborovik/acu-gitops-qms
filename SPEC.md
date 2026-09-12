@@ -45,14 +45,14 @@ V3: erp-roles-stay-bundled — each job-function login keeps current ERP role se
 V4: llm-agent-qm — Rolename `LLM Agent` + user `llm-agent` works QM documents (inspection orders, CoA files, NCR); not a human persona; FirstName `LLM` LastName `Agent`; post-publish also Quality Manager
 V5: email-follows-username — Email = `{Username}@cannordic.ca`
 V6: personas-sync — README Personas table Username matches `91-users.yaml`
-V7: raw-lot-tracked — features.yaml includes `LotSerialTracking`; PARTS items LotSerialClass `LOTRAW` (Track Lot Numbers, When Received, User-Enterable, TrackExpirationDate, Auto-Incremental segment); KITS items LotSerialClass `NOTRACK` (Not Tracked); ClassID mask alphanumeric no hyphen; buy receipts carry LotSerialNbr + ExpirationDate + Location `QCHOLD`
+V7: raw-lot-tracked — features.yaml includes `LotSerialTracking`; PARTS items LotSerialClass `LOTRAW` (Track Lot Numbers, When Received, User-Enterable, TrackExpirationDate, Auto-Incremental segment); ClassID mask alphanumeric no hyphen; buy receipts carry LotSerialNbr + ExpirationDate + Location `QCHOLD`
 V8: qms-numbering — NumberingSequence `QORD` `QNCR` in `config/qms/05-numbering-sequences.yaml`; NewSymbol `<NEW>` (insert ! New Number Symbol or Manual Numbering); not SEED_DIRS (closes §B.3)
 V9: qms-plans-after-publish — `config/qms/10-inspection-plans.yaml` one Active InspectionPlan per raw InventoryID; endpoint `QMS/22.200.001`; not SEED_DIRS
 V10: qms-item-flags — `config/qms/20-stock-item-qms.yaml` endpoint `QMS/22.200.001`; sets UsrQMSInspectionRequired + matching PlanID + UsrMinShelfLifeDays on every PARTS item; 80-stock-items-parts.yaml omits UsrQMS* (closes §B.1)
 V11: qm-users-after-role — `config/qms/30-qm-role-users.yaml` attaches Quality Manager to qa-director and llm-agent (role seeded by Lab5.QMS)
 V12: pinned-lab5-qms — rebuild publishes Lab5.QMS from `customization/Lab5.QMS.pin` (GitHub release tag + sha256) via `QMS_SRC` `acuqms deploy`; `gmake qms-update` latest release → pin tag+sha256 + `.cache/` zip; this repo ! compile DLL ! vendor zip ! `acu check`
 V13: qc-ready-locations — WH-MISS-01 Locations `MAIN` `QCHOLD` `READY` `QUARANTINE`; `QCHOLD` ReceiptsAllowed TransfersAllowed SalesAllowed=false AssemblyAllowed=false; `READY` SalesAllowed TransfersAllowed AssemblyAllowed ReceiptsAllowed=false; `QUARANTINE` TransfersAllowed SalesAllowed=false AssemblyAllowed=false ReceiptsAllowed=false; ReceivingLocationID `QCHOLD`; ShippingLocationID `READY`; RMALocationID `QCHOLD`
-V14: run-is-capital-buy — `acu run` = `scenario/10-seed-capital.yaml` + `scenario/20-buy.yaml`; no `scenario/30-build.yaml`; no `scenario/40-sell.yaml`; no `config/master/85-kit-specifications.yaml`; no NumberingID `INKITASSY`; INPreferences omits `KitAssemblyNumberingID`
+V14: run-is-capital-buy — `acu run` = `scenario/10-seed-capital.yaml` + `scenario/20-buy.yaml`; no `scenario/30-build.yaml`; no `scenario/40-sell.yaml`; no `config/master/82-stock-items-kits.yaml`; no `config/master/85-kit-specifications.yaml`; no NumberingID `INKITASSY`; INPreferences omits `KitAssemblyNumberingID`
 V15: stock-path-without-qms — virgin `gmake acu-apply` + `gmake acu-run` succeed w/ Lab5.QMS unpublished; SEED_DIRS + `scenario/` omit `QMS/22.200.001` UsrQMS* InspectionPlan Quality Manager `QORD` `QNCR`; those live in `config/qms/` post-publish; Makefile rebuild=acu-delete/acu-create/acu-apply/acu-run/qms-publish/qms-apply/acu-diff/acu-state; `gmake qms-update` ! part of rebuild (closes §B.2)
 
 ## §T TASKS
@@ -83,6 +83,7 @@ T23|x|drop `config/master/85-kit-specifications.yaml` + NumberingID `INKITASSY` 
 T24|x|patch Makefile rebuild=delete/create/apply/run/publish/qms/diff/state; apply ! config/qms; grep SEED_DIRS+scenario `QMS/22.200.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager` → 0 hits; tests + README order|V15,I.cmd
 T25|x|move NumberingSequence QORD QNCR to config/qms/05-numbering-sequences.yaml; Makefile qms apply dir; grep SEED_DIRS+scenario QORD QNCR → 0 hits; tests + README|V8,V15,B3
 T26|x|add NewSymbol '<NEW>' on QORD+QNCR; `acu apply config/qms/05-numbering-sequences.yaml` insert + re-apply no 422|V8,B4
+T27|.|drop `config/master/82-stock-items-kits.yaml`; README drop kit SKUs + stay-claim; tests assert file absent + drop NOTRACK-on-kits|V7,V14
 
 ## §B BUGS
 id|date|cause|fix
