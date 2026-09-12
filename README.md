@@ -67,7 +67,7 @@ Bare `acu apply` / `acu diff` also prefer `config/` when those trees exist.
 `gmake acu-apply` and `gmake acu-run` succeed on a virgin tenant before Lab5.QMS is published.
 
 Lab5.QMS is not compiled here. `customization/Lab5.QMS.pin` names the GitHub
-release zip (`tag` + `sha256`). `gmake qms-publish` runs `lab5-qms deploy` from
+release zip (`tag` + `sha256`). `gmake qms-publish` runs `acuqms deploy` from
 `QMS_SRC` (default `../acu-custom-qms`) only when that checkout's version
 matches the pin. `gmake qms-fetch` downloads the pinned release asset into
 `.cache/` and checks the digest. `gmake qms-update` resolves the latest

@@ -285,7 +285,7 @@ class TestV12PinnedLab5Qms(unittest.TestCase):
 
     def test_makefile_rebuild_skips_acu_check(self):
         text = MAKEFILE.read_text()
-        self.assertIn("lab5-qms deploy", text)
+        self.assertIn("acuqms deploy", text)
         self.assertIn("tenant delete", text)
         self.assertIn("tenant create", text)
         self.assertNotRegex(text, r"(?m)^\s*acu check\b")
