@@ -9,9 +9,9 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-USERS = ROOT / "config/master/91-users.yaml"
-ROLES = ROOT / "config/master/90-roles.yaml"
-ROLE_USERS = ROOT / "config/master/92-role-users.yaml"
+USERS = ROOT / "acu-config/master/91-users.yaml"
+ROLES = ROOT / "acu-config/master/90-roles.yaml"
+ROLE_USERS = ROOT / "acu-config/master/92-role-users.yaml"
 README = ROOT / "README.md"
 
 PERSON_USERNAMES = ("etremblay", "mvance", "dsingh", "sarchambault")

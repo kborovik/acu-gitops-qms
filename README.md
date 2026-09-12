@@ -11,7 +11,7 @@ Sourced from the company profile and master data in
 Inventory and vendor IDs are the domain catalog IDs (length at most 30). Warehouse
 `SiteCD` stays 10 characters (`WH-MISS-01`).
 
-`config/bootstrap/segmented-key.yaml` raises CS202000 `INVENTORY` and
+`acu-config/bootstrap/segmented-key.yaml` raises CS202000 `INVENTORY` and
 `BIZACCT` segment 1 to length 30 (DAC max) before StockItem / Vendor /
 Customer. `ACCOUNT` and `INSITE` stay 10.
 
@@ -35,7 +35,7 @@ gmake acu-preflight
 gmake acu-delete
 gmake acu-create
 
-# 3. Seed config umbrella (bootstrap → baseline → setup → master)
+# 3. Seed acu-config umbrella (bootstrap → baseline → setup → master)
 gmake acu-apply
 
 # 4. Lifecycle scenarios (once capital → buy)
@@ -43,37 +43,38 @@ gmake acu-run
 
 # 5. Publish pinned Lab5.QMS (sibling checkout at pin tag; this repo does not compile)
 gmake qms-publish
-# pin: customization/Lab5.QMS.pin → GitHub release kborovik/acu-custom-qms
+# pin: qms-config/Lab5.QMS.pin → GitHub release kborovik/acu-custom-qms
 # override checkout: gmake qms-publish QMS_SRC=/path/to/acu-custom-qms
 
 # 6. Post-publish: QORD/QNCR numbering + inspection plans + UsrQMS* + Quality Manager users
 gmake qms-apply
 
-# 7. Prove no drift (SEED_DIRS only; config/qms/ is post-publish)
+# 7. Prove no drift (SEED_DIRS only; qms-config/ is post-publish)
 gmake acu-diff
 
 # 8. Capture derived-state observations (EndingBalance trial-balance)
 gmake acu-state
 # warm gate: once-capital only — additive buy moves numeric observations
-acu run scenario/10-seed-capital.yaml && acu state --assert-unchanged
+acu run acu-scenario/10-seed-capital.yaml && acu state --assert-unchanged acu-config/views
 
-# Optional: re-seed from live (inverse of apply; always under config/)
-# acu extract --out . --force
+# Optional: re-seed from live (inverse of apply; --out default acu-config/)
+# acu survey extract --force
 ```
 
-Bare `acu apply` / `acu diff` also prefer `config/` when those trees exist.
-`acu extract` hard-cuts emit to `config/{bootstrap,baseline,setup,master}/` (never root SEED_DIRS).
-`config/qms/` is not a SEED_DIR — apply it only after Lab5.QMS is published.
+`apply` / `diff` / `run` / `state` require an explicit data path (acu ≥ 0.35).
+`acu apply acu-config` umbrella-expands SEED_DIRS and does not apply a sibling QMS dir.
+`acu survey extract` writes SEED_DIRS into `--out` (default `acu-config/`).
+`qms-config/` is not a SEED_DIR — apply it only after Lab5.QMS is published.
 `gmake acu-apply` and `gmake acu-run` succeed on a virgin tenant before Lab5.QMS is published.
 
-Lab5.QMS is not compiled here. `customization/Lab5.QMS.pin` names the GitHub
+Lab5.QMS is not compiled here. `qms-config/Lab5.QMS.pin` names the GitHub
 release zip (`tag` + `sha256`). `gmake qms-publish` runs `acuqms deploy` from
 `QMS_SRC` (default `../acu-custom-qms`) only when that checkout's version
 matches the pin. `gmake qms-fetch` downloads the pinned release asset into
 `.cache/` and checks the digest. `gmake qms-update` resolves the latest
 GitHub release, rewrites the pin `tag` + `sha256`, and downloads that zip.
 
-`config/qms/05-numbering-sequences.yaml` seeds Bootstrap `NumberingSequence` `QORD` / `QNCR` (inspection orders / NCR). `config/qms/10-inspection-plans.yaml` and `config/qms/20-stock-item-qms.yaml` set `endpoint: QMS/22.200.001`. `acu apply` of those files persists InspectionPlan rows and `UsrQMSInspectionRequired`, `UsrQMSInspectionPlanID`, and `UsrMinShelfLifeDays`. `config/qms/30-qm-role-users.yaml` applies.
+`qms-config/05-numbering-sequences.yaml` seeds Bootstrap `NumberingSequence` `QORD` / `QNCR` (inspection orders / NCR). `qms-config/10-inspection-plans.yaml` and `qms-config/20-stock-item-qms.yaml` set `endpoint: QMS/22.200.001`. `acu apply` of those files persists InspectionPlan rows and `UsrQMSInspectionRequired`, `UsrQMSInspectionPlanID`, and `UsrMinShelfLifeDays`. `qms-config/30-qm-role-users.yaml` applies.
 
 ## Company
 
@@ -91,7 +92,7 @@ sales/assembly), `READY` (released stock), `QUARANTINE` (failed inspection;
 transfers only). Receiving default `QCHOLD`; shipping default `READY`. Buy
 receipts land in `QCHOLD`.
 
-Item class IDs stay `PARTS` / `KITS` so `acu extract` filter-split still matches.
+Item class IDs stay `PARTS` / `KITS` so `acu survey extract` filter-split still matches.
 
 ## Catalog in this seed
 
@@ -119,16 +120,15 @@ Item class IDs stay `PARTS` / `KITS` so `acu extract` filter-split still matches
 | Path | Role |
 |------|------|
 | `.env` | Secrets + REST where (`ACU_BASE_URL`) + Default pin (`ACU_API_VERSION`) |
-| `customization/Lab5.QMS.pin` | Pinned Lab5.QMS GitHub release (tag + sha256). Not the zip |
 | `Makefile` | `gmake rebuild` / `acu-*` / `qms-*` — never `acu check` |
-| `config/bootstrap/` | Company identity, features, credit terms, segmented keys (Bootstrap contract is package SoT — never scaffolded) |
-| `config/baseline/` | GL foundation (COA, ledger, subaccounts, UOMs, company packaging `91-company-packaging`) |
-| `config/setup/` | Financial year, master calendar, open periods |
-| `config/master/` | Numbering (`05-numbering-sequences`) before module prefs; `LOTRAW`; inventory, warehouse, items, vendors, customers; roles/users (`90-roles` then `91-users` then `92-role-users`) |
-| `config/qms/` | Post-publish Lab5.QMS: `QORD`/`QNCR` numbering, inspection plans, StockItem UsrQMS*, Quality Manager user attach. Not SEED_DIRS |
-| `scenario/10-seed-capital.yaml` | Once-class owner capital JE (skip-if-present when present); Period = `${current_period}` |
-| `scenario/20-buy.yaml` | Additive ingredient PO, then receipt (lot + expiry at `QCHOLD`), then bill, then AP pay (four suppliers) |
-| `config/views/10-trial-balance.yaml` | Observer view (EndingBalance inquire; Period pinned literal; not SEED_DIRS) |
+| `acu-config/bootstrap/` | Company identity, features, credit terms, segmented keys (Bootstrap contract is package SoT — never scaffolded) |
+| `acu-config/baseline/` | GL foundation (COA, ledger, subaccounts, UOMs, company packaging `91-company-packaging`) |
+| `acu-config/setup/` | Financial year, master calendar, open periods |
+| `acu-config/master/` | Numbering (`05-numbering-sequences`) before module prefs; `LOTRAW`; inventory, warehouse, items, vendors, customers; roles/users (`90-roles` then `91-users` then `92-role-users`) |
+| `qms-config/` | Post-publish Lab5.QMS: `Lab5.QMS.pin` (GitHub release tag + sha256, not the zip), `QORD`/`QNCR` numbering, inspection plans, StockItem UsrQMS*, Quality Manager user attach. Not SEED_DIRS. `acu apply` expands `*.yaml` only |
+| `acu-scenario/10-seed-capital.yaml` | Once-class owner capital JE (skip-if-present when present); Period = `${current_period}` |
+| `acu-scenario/20-buy.yaml` | Additive ingredient PO, then receipt (lot + expiry at `QCHOLD`), then bill, then AP pay (four suppliers) |
+| `acu-config/views/10-trial-balance.yaml` | Observer view (EndingBalance inquire; Period pinned literal; not SEED_DIRS) |
 | `state/` | Written by `acu state` (derived-state observations) |
 
 `acu run` expands `${current_period}` to host-local `MMyyyy`. Views for `acu state` stay pinned so committed `state/` rows do not rewrite every month.
@@ -139,11 +139,11 @@ Monoscenario `buy-sell` is not part of this package.
 
 | User | Role | ERP roles |
 | --- | --- | --- |
-| `qa-director` | Dr. Elodie Tremblay, Director of QA | IN Manager, PO Viewer (+ Quality Manager after `config/qms/`) |
+| `qa-director` | Dr. Elodie Tremblay, Director of QA | IN Manager, PO Viewer (+ Quality Manager after `qms-config/`) |
 | `vp-supply-chain` | Marcus Vance, VP Supply Chain | PO Admin, SO Admin |
 | `receiving-supervisor` | Devon Singh, Receiving Supervisor | IN Receiver, PO Clerk |
 | `erp-architect` | Sophie Archambault, ERP Architect | Administrator |
-| `llm-agent` | LLM Agent | LLM Agent (+ Quality Manager after `config/qms/`) |
+| `llm-agent` | LLM Agent | LLM Agent (+ Quality Manager after `qms-config/`) |
 
 ## Quality inspection workflow
 

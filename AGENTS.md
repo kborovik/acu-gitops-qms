@@ -11,6 +11,48 @@ Create github issue in that repo, not here, for QM customization errors or defic
 
 Never print `.env` secrets.
 
+Requires `acu` ≥ 0.35 (`explicit data folders`, gh #46).
+
+## Data repo layout (acu ≥ 0.35)
+
+Stock trees match `acu config init` / packaged templates. QMS stays in sibling
+`qms-config/` so `acu apply acu-config` never expands Lab5.QMS YAML.
+
+| Path | Role |
+|------|------|
+| `.env` | Secrets + REST where (`ACU_BASE_URL`) + Default pin (`ACU_API_VERSION`) |
+| `acu-config/bootstrap/` | Company, features, credit terms, segmented keys. Bootstrap contract is package SoT — never a data-repo `project.xml`. `acu bootstrap` reads `acu-config/bootstrap/features.yaml` only |
+| `acu-config/baseline/` | GL foundation (COA, ledger, subaccounts, UOMs, company packaging) |
+| `acu-config/setup/` | Financial year, master calendar, open periods |
+| `acu-config/master/` | Numbering, inventory, warehouse, items, vendors, customers, roles/users |
+| `acu-config/views/` | Observer views for `acu state` (not SEED_DIRS) |
+| `acu-scenario/` | Transaction scripts (`10-seed-capital.yaml`, `20-buy.yaml`) |
+| `qms-config/` | Post-publish Lab5.QMS seed YAML + `Lab5.QMS.pin` (GitHub release tag + sha256). Not SEED_DIRS. `acu apply` expands `*.yaml` only |
+| `state/` | Written by `acu state` (derived-state observations) |
+
+SEED_DIRS = `bootstrap`, `baseline`, `setup`, `master` (children of `acu-config/`).
+
+`apply` / `diff` / `run` / `state` require an explicit data path. Zero args print
+that command's help, exit non-zero, and do not call HTTP.
+
+```sh
+acu apply acu-config          # umbrella: bootstrap → baseline → setup → master
+acu run acu-scenario          # capital → buy
+acu diff acu-config           # SEED_DIRS only
+acu state acu-config/views    # trial-balance observations → state/
+acu apply qms-config          # after Lab5.QMS is published
+acu survey extract --force    # inverse of apply; --out default acu-config/
+```
+
+`acu apply acu-config` expands SEED_DIRS children only. It does not apply
+`qms-config/` (not a SEED_DIR child). Bootstrap leftover `config/` paths are
+not consulted: features.yaml is `acu-config/bootstrap/features.yaml` only.
+
+Makefile: `gmake acu-apply` / `acu-run` / `acu-diff` / `acu-state` pass those
+paths. `gmake qms-apply` is `acu apply qms-config/`. `gmake rebuild` is
+acu-delete → acu-create → acu-apply → acu-run → qms-publish → qms-apply →
+acu-diff → acu-state. Never `acu check`.
+
 ## In-product Help (this tenant)
 
 Version-matched docs live on the CNBN instance, not help.acumatica.com.
@@ -49,4 +91,3 @@ Lookup order:
 4. **Field contracts** (length, `InputMask`, uniqueness). Help does not state these — DAC / product source.
 
 Example: Users (`SM201010`) leads to `/ui/help/SM201010`, then export `834cc181-97fa-4db4-a7e0-3eaba142c166`; related concept `User Access: General Information` is `PageID=4fffce52-0091-4d33-ba3c-b4a756b45670`.
-

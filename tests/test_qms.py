@@ -9,21 +9,21 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-FEATURES = ROOT / "config/bootstrap/features.yaml"
-NUMBERING = ROOT / "config/master/05-numbering-sequences.yaml"
-NUMBERING_QMS = ROOT / "config/qms/05-numbering-sequences.yaml"
-IN_PREFS = ROOT / "config/master/20-in-preferences.yaml"
-LOTS = ROOT / "config/master/55-lot-serial-classes.yaml"
-PARTS = ROOT / "config/master/80-stock-items-parts.yaml"
-KITS = ROOT / "config/master/82-stock-items-kits.yaml"
-KIT_SPECS = ROOT / "config/master/85-kit-specifications.yaml"
-PLANS = ROOT / "config/qms/10-inspection-plans.yaml"
-ITEM_QMS = ROOT / "config/qms/20-stock-item-qms.yaml"
-QM_ROLE_USERS = ROOT / "config/qms/30-qm-role-users.yaml"
-BUY = ROOT / "scenario/20-buy.yaml"
-WH_LOCS = ROOT / "config/master/51-warehouse-locations.yaml"
-WH_DEF = ROOT / "config/master/52-warehouse-defaults.yaml"
-SCENARIO = ROOT / "scenario"
+FEATURES = ROOT / "acu-config/bootstrap/features.yaml"
+NUMBERING = ROOT / "acu-config/master/05-numbering-sequences.yaml"
+NUMBERING_QMS = ROOT / "qms-config/05-numbering-sequences.yaml"
+IN_PREFS = ROOT / "acu-config/master/20-in-preferences.yaml"
+LOTS = ROOT / "acu-config/master/55-lot-serial-classes.yaml"
+PARTS = ROOT / "acu-config/master/80-stock-items-parts.yaml"
+KITS = ROOT / "acu-config/master/82-stock-items-kits.yaml"
+KIT_SPECS = ROOT / "acu-config/master/85-kit-specifications.yaml"
+PLANS = ROOT / "qms-config/10-inspection-plans.yaml"
+ITEM_QMS = ROOT / "qms-config/20-stock-item-qms.yaml"
+QM_ROLE_USERS = ROOT / "qms-config/30-qm-role-users.yaml"
+BUY = ROOT / "acu-scenario/20-buy.yaml"
+WH_LOCS = ROOT / "acu-config/master/51-warehouse-locations.yaml"
+WH_DEF = ROOT / "acu-config/master/52-warehouse-defaults.yaml"
+SCENARIO = ROOT / "acu-scenario"
 README = ROOT / "README.md"
 
 RAW_ITEMS = (
@@ -227,7 +227,7 @@ class TestV11QmRoleUsers(unittest.TestCase):
         self.assertEqual(names, ["qa-director", "llm-agent"])
 
 
-PIN = ROOT / "customization/Lab5.QMS.pin"
+PIN = ROOT / "qms-config/Lab5.QMS.pin"
 MAKEFILE = ROOT / "Makefile"
 
 
@@ -235,20 +235,20 @@ class TestReadmeQmsLayout(unittest.TestCase):
     def test_readme_documents_qms_apply_and_drops_matrix(self):
         text = README.read_text()
         self.assertNotIn("matrix.yaml", text)
-        self.assertIn("config/qms/", text)
+        self.assertIn("qms-config/", text)
         self.assertIn("gmake qms-apply", text)
         self.assertIn("LOTRAW", text)
         self.assertIn("QORD", text)
         self.assertIn("gmake qms-publish", text)
         self.assertIn("gmake qms-update", text)
-        self.assertIn("customization/Lab5.QMS.pin", text)
+        self.assertIn("qms-config/Lab5.QMS.pin", text)
         self.assertIn("gmake acu-delete", text)
         self.assertIn("gmake acu-create", text)
 
     def test_readme_does_not_call_item_qms_apply_a_noop(self):
         text = README.read_text()
         self.assertNotIn("is a no-op", text)
-        self.assertIn("config/qms/20-stock-item-qms.yaml", text)
+        self.assertIn("qms-config/20-stock-item-qms.yaml", text)
         self.assertIn("endpoint: QMS/22.200.001", text)
 
     def test_readme_does_not_run_acu_check(self):
@@ -295,10 +295,10 @@ class TestV12PinnedLab5Qms(unittest.TestCase):
 
 
 SEED_DIRS = (
-    ROOT / "config/bootstrap",
-    ROOT / "config/baseline",
-    ROOT / "config/setup",
-    ROOT / "config/master",
+    ROOT / "acu-config/bootstrap",
+    ROOT / "acu-config/baseline",
+    ROOT / "acu-config/setup",
+    ROOT / "acu-config/master",
 )
 QMS_ONLY = re.compile(
     r"QMS/22\.200\.001|UsrQMS|entity: InspectionPlan|Rolename: Quality Manager|\bQORD\b|\bQNCR\b"
@@ -381,10 +381,10 @@ class TestV15StockPathWithoutQms(unittest.TestCase):
 
     def test_makefile_apply_does_not_apply_config_qms(self):
         recipe = makefile_recipe("acu-apply")
-        self.assertIn("acu apply", recipe)
-        self.assertFalse(any("config/qms" in line for line in recipe))
+        self.assertIn("acu apply acu-config", recipe)
+        self.assertFalse(any("qms-config" in line for line in recipe))
         qms = makefile_recipe("qms-apply")
-        self.assertIn("acu apply config/qms/", qms)
+        self.assertIn("acu apply qms-config/", qms)
 
     def test_makefile_qms_update_rewrites_pin_and_downloads(self):
         recipe = makefile_recipe("qms-update")
@@ -396,13 +396,13 @@ class TestV15StockPathWithoutQms(unittest.TestCase):
         self.assertIn("sha256=", joined)
 
     def test_qms_dir_applies_numbering_first(self):
-        names = sorted(p.name for p in (ROOT / "config/qms").glob("*.yaml"))
+        names = sorted(p.name for p in (ROOT / "qms-config").glob("*.yaml"))
         self.assertEqual(names[0], "05-numbering-sequences.yaml")
         self.assertIn("10-inspection-plans.yaml", names)
 
     def test_seed_dirs_and_scenario_omit_qms_only_tokens(self):
         hits: list[str] = []
-        roots = [*SEED_DIRS, ROOT / "scenario"]
+        roots = [*SEED_DIRS, ROOT / "acu-scenario"]
         for root in roots:
             for path in root.rglob("*.yaml"):
                 text = path.read_text()
@@ -411,7 +411,7 @@ class TestV15StockPathWithoutQms(unittest.TestCase):
         self.assertEqual(hits, [])
 
     def test_qms_tree_holds_qms_only_tokens(self):
-        texts = [p.read_text() for p in (ROOT / "config/qms").glob("*.yaml")]
+        texts = [p.read_text() for p in (ROOT / "qms-config").glob("*.yaml")]
         joined = "\n".join(texts)
         self.assertIn("QMS/22.200.001", joined)
         self.assertIn("UsrQMS", joined)

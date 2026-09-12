@@ -24,7 +24,7 @@ dry-run = $(findstring n,$(firstword $(MAKEFLAGS)))
 
 # Sibling customization checkout. Override: gmake qms-publish QMS_SRC=/path/to/acu-custom-qms
 QMS_SRC ?= $(abspath ../acu-custom-qms)
-PIN := customization/Lab5.QMS.pin
+PIN := qms-config/Lab5.QMS.pin
 CACHE := .cache
 
 pin-kv := $(foreach w,$(file < $(PIN)),$(if $(and $(findstring =,$(w)),$(filter-out \#%,$(w))),$(w)))
@@ -79,21 +79,21 @@ acu-create: ## Create ACU_TENANT + first-login + AcuBootstrap
 	$(call header,Creating tenant $(TENANT))
 	acu tenant create --login "$(TENANT)"
 
-acu-apply: ## Seed config/ bootstrap → baseline → setup → master
-	$(call header,acu apply)
-	acu apply
+acu-apply: ## Seed acu-config/ bootstrap → baseline → setup → master
+	$(call header,acu apply acu-config)
+	acu apply acu-config
 
 acu-run: ## Lifecycle scenarios (capital → buy)
-	$(call header,acu run)
-	acu run
+	$(call header,acu run acu-scenario)
+	acu run acu-scenario
 
-acu-diff: ## Prove SEED_DIRS have no drift (config/qms/ is post-publish)
-	$(call header,acu diff)
-	acu diff
+acu-diff: ## Prove SEED_DIRS have no drift (qms-config/ is post-publish)
+	$(call header,acu diff acu-config)
+	acu diff acu-config
 
 acu-state: ## Capture derived-state observations into state/
-	$(call header,acu state)
-	acu state
+	$(call header,acu state acu-config/views)
+	acu state acu-config/views
 
 ###############################################################################
 # QMS — Lab5.QMS pin, zip, publish, post-publish seed
@@ -158,8 +158,8 @@ qms-update: ## Bump Lab5.QMS.pin to latest GitHub release and download the zip
 	echo "$$cache/$$asset"
 
 qms-apply: ## Post-publish QMS master (QORD/QNCR numbering + inspection plans + UsrQMS* + Quality Manager)
-	$(call header,acu apply config/qms/)
-	acu apply config/qms/
+	$(call header,acu apply qms-config/)
+	acu apply qms-config/
 
 ###############################################################################
 # Rebuild — never `acu check` (subcommand is going away)
